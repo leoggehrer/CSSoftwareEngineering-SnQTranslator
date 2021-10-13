@@ -1,0 +1,7 @@
+//@GeneratedCode
+namespace SnQTranslator.Logic.Entities.Persistence.Account
+{
+    partial class LoginSession : VersionEntity
+    {
+    }
+}

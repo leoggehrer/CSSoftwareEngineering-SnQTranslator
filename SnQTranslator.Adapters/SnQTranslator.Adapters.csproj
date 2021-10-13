@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <DefineConstants>ACCOUNT_ON;LOGGING_OFF;REVISION_OFF</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SnQTranslator.Logic\SnQTranslator.Logic.csproj" />
+    <ProjectReference Include="..\SnQTranslator.Transfer\SnQTranslator.Transfer.csproj" />
+  </ItemGroup>
+
+</Project>
