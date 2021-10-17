@@ -2,7 +2,9 @@
 //MdStart
 using CommonBase.Extensions;
 using Microsoft.AspNetCore.Mvc;
+using SnQTranslator.AspMvc.Modules.Session;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -12,6 +14,13 @@ namespace SnQTranslator.AspMvc.Controllers
         where TContract : Contracts.IIdentifiable, Contracts.ICopyable<TContract>
         where TModel : TContract, new()
     {
+        protected enum Action
+        {
+            Index,
+            Create,
+            Edit,
+            Delete,
+        }
         private string lastError;
 
         static GenericController()
@@ -40,12 +49,22 @@ namespace SnQTranslator.AspMvc.Controllers
             }
         }
         protected bool HasError => string.IsNullOrEmpty(LastError) == false;
+
+        protected bool FromCreateToEdit { get; set; } = true;
+        protected bool FromEditToIndex { get; set; } = false;
+
+        #region SessionWrapper
+        public bool IsSessionAvailable => HttpContext?.Session != null;
+        private ISessionWrapper sessionWrapper = null;
+        internal ISessionWrapper SessionWrapper => sessionWrapper ?? (sessionWrapper = new SessionWrapper(HttpContext.Session));
+        #endregion
+
         protected string ControllerName => GetType().Name.Replace("Controller", string.Empty);
         protected static Contracts.Client.IAdapterAccess<TContract> CreateController()
         {
             return Adapters.Factory.Create<TContract>();
         }
-        protected TModel ToModel(TContract entity)
+        protected virtual TModel ToModel(TContract entity)
         {
             entity.CheckArgument(nameof(entity));
 
@@ -54,14 +73,21 @@ namespace SnQTranslator.AspMvc.Controllers
             result.CopyProperties(entity);
             return result;
         }
-
+        protected virtual TModel BeforeView(TModel model, Action action) => model;
+        protected virtual IEnumerable<TModel> BeforeView(IEnumerable<TModel> models, Action action) => models;
+        protected virtual Task<TModel> BeforeViewAsync(TModel model, Action action) => Task.FromResult(model);
+        protected virtual Task<IEnumerable<TModel>> BeforeViewAsync(IEnumerable<TModel> models, Action action) => Task.FromResult(models);
         [HttpGet]
-        public virtual async Task<IActionResult> Index()
+        [ActionName("Index")]
+        public virtual async Task<IActionResult> IndexAsync()
         {
             using var ctrl = CreateController();
             var entities = await ctrl.GetAllAsync().ConfigureAwait(false);
+            var models = entities.Select(e => ToModel(e));
 
-            return View("Index", entities.Select(e => ToModel(e)));
+            models = BeforeView(models, Action.Index);
+            models = await BeforeViewAsync(models, Action.Index).ConfigureAwait(false);
+            return View("Index", models);
         }
         [HttpGet]
         [ActionName("Create")]
@@ -69,6 +95,8 @@ namespace SnQTranslator.AspMvc.Controllers
         {
             var model = await CreateModelAsync().ConfigureAwait(false);
 
+            model = BeforeView(model, Action.Create);
+            model = await BeforeViewAsync(model, Action.Create).ConfigureAwait(false);
             return View("Create", model);
         }
         protected virtual async Task<TModel> CreateModelAsync()
@@ -91,8 +119,9 @@ namespace SnQTranslator.AspMvc.Controllers
                 try
                 {
                     using var ctrl = CreateController();
+                    var entity = await ctrl.InsertAsync(model).ConfigureAwait(false);
 
-                    await ctrl.InsertAsync(model).ConfigureAwait(false);
+                    model.CopyProperties(entity);
                     LastError = string.Empty;
                 }
                 catch (Exception ex)
@@ -101,7 +130,12 @@ namespace SnQTranslator.AspMvc.Controllers
                 }
             }
             AfterInsertEntity(model);
-            return HasError ? View("Create", model) : RedirectToAction("Index");
+            if (HasError)
+            {
+                model = BeforeView(model, Action.Create);
+                model = await BeforeViewAsync(model, Action.Create).ConfigureAwait(false);
+            }
+            return HasError ? View("Create", model) : FromCreateToEdit ? RedirectToAction("Edit", new { model.Id }) : RedirectToAction("Index");
         }
         partial void BeforeInsertEntity(TModel model, ref bool handled);
         partial void AfterInsertEntity(TModel model);
@@ -112,6 +146,8 @@ namespace SnQTranslator.AspMvc.Controllers
         {
             var model = await EditModelAsync(id).ConfigureAwait(false);
 
+            model = BeforeView(model, Action.Edit);
+            model = await BeforeViewAsync(model, Action.Edit).ConfigureAwait(false);
             return View("Edit", model);
         }
         protected virtual async Task<TModel> EditModelAsync(int id)
@@ -134,7 +170,9 @@ namespace SnQTranslator.AspMvc.Controllers
                 try
                 {
                     using var ctrl = CreateController();
-                    await ctrl.UpdateAsync(model).ConfigureAwait(false);
+                    var entity = await ctrl.UpdateAsync(model).ConfigureAwait(false);
+
+                    model.CopyProperties(entity);
                     LastError = string.Empty;
                 }
                 catch (Exception ex)
@@ -143,7 +181,12 @@ namespace SnQTranslator.AspMvc.Controllers
                 }
             }
             AfterUpdateEntity(model);
-            return HasError ? View("Edit", model) : RedirectToAction("Index");
+            if (HasError)
+            {
+                model = BeforeView(model, Action.Edit);
+                model = await BeforeViewAsync(model, Action.Edit).ConfigureAwait(false);
+            }
+            return HasError ? View("Edit", model) : FromEditToIndex ? RedirectToAction("Index") : RedirectToAction("Edit", new { model.Id });
         }
         partial void BeforeUpdateEntity(TModel model, ref bool handled);
         partial void AfterUpdateEntity(TModel model);
@@ -154,8 +197,11 @@ namespace SnQTranslator.AspMvc.Controllers
         {
             using var ctrl = CreateController();
             var entity = await ctrl.GetByIdAsync(id).ConfigureAwait(false);
+            var model = ToModel(entity);
 
-            return View("Delete", ToModel(entity));
+            model = BeforeView(model, Action.Delete);
+            model = await BeforeViewAsync(model, Action.Delete).ConfigureAwait(false);
+            return View("Delete", model);
         }
         [ActionName("Delete")]
         public virtual async Task<IActionResult> DeleteAsync(int id)

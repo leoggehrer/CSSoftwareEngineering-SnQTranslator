@@ -1,0 +1,107 @@
+﻿@using SnQTranslator.AspMvc.Modules.Handler
+@using SnQTranslator.AspMvc.Modules.Session
+@model IEnumerable<SnQTranslator.AspMvc.Models.Persistence.App.Translation>
+
+@{
+    var all = string.Empty;
+    var page = string.Empty;
+    var activeHref = "/Translations/IndexByPage";
+    var title = "Translations";
+    var sessionWrapper = new SessionWrapper(Context.Session);
+
+    ViewData["Title"] = title;
+    if (sessionWrapper.HasValue(nameof(page)))
+    {
+        page = sessionWrapper.GetStringValue(nameof(page), all);
+    }
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+
+@if (string.IsNullOrEmpty(ErrorHandler.LastError) == false)
+{
+    <div class="alert alert-danger" role="alert">
+        @ErrorHandler.GetLastErrorAndClear()
+    </div>
+}
+
+@{
+    char chrStart = 'A', chrEnd = 'Z';
+    <div class="d-flex justify-content-center">
+        @for (char chrRun = chrStart; chrRun <= chrEnd; chrRun++)
+        {
+            var strRun = Char.ToString(chrRun);
+
+            if (chrRun.ToString().Equals(page, StringComparison.CurrentCultureIgnoreCase))
+            {
+                <div class="p-sm-0"><a class="page-link" style="background-color: lightgray;" href="@($"{activeHref}?page={strRun}")">@strRun</a></div>
+            }
+            else
+            {
+                <div class="p-sm-0"><a class="page-link" href="@($"{activeHref}?page={strRun}")">@strRun</a></div>
+            }
+        }
+        @if (string.IsNullOrEmpty(page) || page.Equals(all, StringComparison.CurrentCultureIgnoreCase))
+        {
+            <div class="p-0" style="margin-left: 10px;"><a class="page-link" style="background-color: lightgray;" href="@($"{activeHref}?page={all}")">All</a></div>
+        }
+        else
+        {
+            <div class="p-0" style="margin-left: 10px;"><a class="page-link" href="@($"{activeHref}")">All</a></div>
+        }
+    </div>
+}
+<p></p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.AppName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.KeyLanguage)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Key)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ValueLanguage)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Value)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.AppName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.KeyLanguage)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Key)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ValueLanguage)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Value)
+                </td>
+                <td>
+                    @Html.ActionLink("Edit", "Edit", new { id=item.Id }) |
+                    @*@Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |*@
+                    @Html.ActionLink("Delete", "Delete", new { id=item.Id })
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

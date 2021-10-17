@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace SnQTranslator.Adapters.Service
 {
-    partial class GenericServiceAdapter<TContract, TModel> : ServiceAdapterObject, Contracts.Client.IAdapterAccess<TContract>
+    internal partial class GenericServiceAdapter<TContract, TModel> : ServiceAdapterObject, Contracts.Client.IAdapterAccess<TContract>
         where TContract : Contracts.IIdentifiable
         where TModel : TContract, Contracts.ICopyable<TContract>, new()
     {
@@ -176,24 +176,41 @@ namespace SnQTranslator.Adapters.Service
         }
         public async Task<IEnumerable<TContract>> GetAllAsync()
         {
-            var result = new List<TContract>();
-            var index = 0;
-            var pageSize = MaxPageSize;
-            int qryCount;
-            do
-            {
-                var qry = await GetPageListAsync(index++, pageSize).ConfigureAwait(false);
+            using var client = GetClient(BaseUri);
+            var response = await client.GetAsync($"{ExtUri}/All").ConfigureAwait(false);
 
-                qryCount = qry.Count();
-                result.AddRange(qry);
-            } while (qryCount > 0 && qryCount % pageSize == 0);
-            return result;
+            if (response.IsSuccessStatusCode)
+            {
+                var contentData = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
+
+                return await JsonSerializer.DeserializeAsync<TModel[]>(contentData, DeserializerOptions).ConfigureAwait(false) as IEnumerable<TContract>;
+            }
+            else
+            {
+                string stringData = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                string errorMessage = $"{response.ReasonPhrase}: {stringData}";
+
+                System.Diagnostics.Debug.WriteLine("{0} ({1})", (int)response.StatusCode, errorMessage);
+                throw new AdapterException((int)response.StatusCode, errorMessage);
+            }
+            //var result = new List<TContract>();
+            //var index = 0;
+            //var pageSize = MaxPageSize;
+            //int qryCount;
+            //do
+            //{
+            //    var qry = await GetPageListAsync(index++, pageSize).ConfigureAwait(false);
+
+            //    qryCount = qry.Count();
+            //    result.AddRange(qry);
+            //} while (qryCount > 0 && qryCount % pageSize == 0);
+            //return result;
         }
 
-        public async Task<IEnumerable<TContract>> QueryPageListAsync(string predicate, int pageIndex, int pageSize)
+        public async Task<IEnumerable<TContract>> QueryAllAsync(string predicate)
         {
             using var client = GetClient(BaseUri);
-            var response = await client.GetAsync($"{ExtUri}/{predicate}/{pageIndex}/{pageSize}").ConfigureAwait(false);
+            var response = await client.GetAsync($"{ExtUri}/Query/{predicate}").ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
             {
@@ -210,22 +227,6 @@ namespace SnQTranslator.Adapters.Service
                 throw new AdapterException((int)response.StatusCode, errorMessage);
             }
         }
-        public async Task<IEnumerable<TContract>> QueryAllAsync(string predicate)
-        {
-            var result = new List<TContract>();
-            var index = 0;
-            var pageSize = MaxPageSize;
-            int qryCount;
-            do
-            {
-                var qry = await QueryPageListAsync(predicate, index++, pageSize).ConfigureAwait(false);
-
-                qryCount = qry.Count();
-                result.AddRange(qry);
-            } while (qryCount > 0 && qryCount % pageSize == 0);
-            return result;
-        }
-
         public async Task<TContract> CreateAsync()
         {
             using var client = GetClient(BaseUri);
