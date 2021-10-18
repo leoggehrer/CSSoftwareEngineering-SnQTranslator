@@ -7,13 +7,6 @@
 	SessionWrapper sessionWrapper = new SessionWrapper(Context.Session);
 }
 
-<environment names="Development">
-	<link rel="stylesheet" href="~/css/logon.css" />
-</environment>
-<environment names="Staging,Production">
-	<link rel="stylesheet" href="~/css/logon.min.css" asp-append-version="true" />
-</environment>
-
 @{
 	string controller = ViewContext.RouteData.Values["controller"].ToString();
 	string action = ViewContext.RouteData.Values["action"].ToString();
@@ -49,12 +42,14 @@
 						<input name="@nameof(Model.Email)" type="text" class="form-control" placeholder="Email" required autofocus />
 						<p></p>
 						<input name="@nameof(Model.Password)" type="password" class="form-control" placeholder="Password" required />
+						<p></p>
 						<button class="btn btn-lg btn-primary btn-block" type="submit">
 							Sign in
 						</button>
 					}
 					@if (string.IsNullOrEmpty(ErrorHandler.LastError) == false)
 					{
+						<p></p>
 						<div class="alert alert-danger" role="alert">
 							@ErrorHandler.GetLastErrorAndClear()
 						</div>
