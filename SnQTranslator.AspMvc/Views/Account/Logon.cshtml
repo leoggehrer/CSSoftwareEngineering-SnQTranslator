@@ -36,9 +36,7 @@
 					{
 						@Html.AntiForgeryToken()
 						@Html.ValidationSummary(true)
-
-						<input name="@nameof(Model.ReturnUrl)" type="hidden" value="@Model.ReturnUrl" />
-						<input name="@nameof(Model.IdentityUrl)" type="hidden" value="@Model.IdentityUrl" />
+						@Html.HiddenFor(m => m.ReturnUrl)
 						<input name="@nameof(Model.Email)" type="text" class="form-control" placeholder="Email" required autofocus />
 						<p></p>
 						<input name="@nameof(Model.Password)" type="password" class="form-control" placeholder="Password" required />

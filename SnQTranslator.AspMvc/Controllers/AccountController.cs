@@ -35,7 +35,7 @@ namespace SnQTranslator.AspMvc.Controllers
             var viewName = nameof(Logon);
             var viewModel = new LogonViewModel()
             {
-                ReturnUrl = returnUrl,
+                ReturnUrl = returnUrl ?? "/Translations/Index",
             };
 
             BeforeLogon(viewModel, ref handled);
@@ -105,7 +105,7 @@ namespace SnQTranslator.AspMvc.Controllers
                 }
                 AfterLogout();
             }
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("Index", "Translations");
         }
         partial void BeforeLogout(ref bool handled);
         partial void AfterLogout();

@@ -5,11 +5,13 @@ using System.Threading.Tasks;
 
 namespace SnQTranslator.AspMvc.Controllers.Persistence.App
 {
-    partial class TranslationsController
+    public partial class TranslationsController
     {
         public override Task<IActionResult> IndexAsync()
         {
-            return base.IndexAsync();
+            var page = SessionWrapper.GetStringValue("page");
+
+            return Task.Run<IActionResult>(() => RedirectToAction("IndexByPage", new { page }));
         }
 
         [ActionName("IndexByPage")]
@@ -35,6 +37,14 @@ namespace SnQTranslator.AspMvc.Controllers.Persistence.App
             models = BeforeView(models, Action.Index);
             models = await BeforeViewAsync(models, Action.Index).ConfigureAwait(false);
             return View("Index", models);
+        }
+        [ActionName("IndexByAppName")]
+        public IActionResult IndexByAppName(string appName)
+        {
+            var page = SessionWrapper.GetStringValue("page");
+
+            SessionWrapper.SetStringValue("appname", appName);
+            return RedirectToAction("IndexByPage", new { page });
         }
     }
 }
