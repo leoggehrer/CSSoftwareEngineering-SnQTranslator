@@ -29,6 +29,22 @@ namespace SnQTranslator.AspMvc.Controllers
         static partial void ClassConstructing();
         static partial void ClassConstructed();
 
+        protected Contracts.Client.IAdapterAccess<TContract> CreateController()
+        {
+            var handled = false;
+            var result = default(Contracts.Client.IAdapterAccess<TContract>);
+
+            BeforeCreateController(ref result, ref handled);
+            if (handled == false)
+            {
+                result = Adapters.Factory.Create<TContract>();
+            }
+            AfterCreateController(result);
+            return result;
+        }
+        partial void BeforeCreateController(ref Contracts.Client.IAdapterAccess<TContract> controller, ref bool handled);
+        partial void AfterCreateController(Contracts.Client.IAdapterAccess<TContract> controller);
+
         internal GenericController()
         {
             Constructing();
@@ -37,15 +53,10 @@ namespace SnQTranslator.AspMvc.Controllers
         partial void Constructing();
         partial void Constructed();
 
-
         protected bool FromCreateToEdit { get; set; } = true;
         protected bool FromEditToIndex { get; set; } = false;
-
         protected string ControllerName => GetType().Name.Replace("Controller", string.Empty);
-        protected static Contracts.Client.IAdapterAccess<TContract> CreateController()
-        {
-            return Adapters.Factory.Create<TContract>();
-        }
+
         protected virtual TModel ToModel(TContract entity)
         {
             entity.CheckArgument(nameof(entity));
@@ -75,19 +86,52 @@ namespace SnQTranslator.AspMvc.Controllers
         [ActionName("Create")]
         public virtual async Task<IActionResult> CreateAsync()
         {
-            var model = await CreateModelAsync().ConfigureAwait(false);
+            var handled = false;
+            var model = default(TModel);
 
-            model = BeforeView(model, Action.Create);
-            model = await BeforeViewAsync(model, Action.Create).ConfigureAwait(false);
-            return View("Create", model);
+            BeforeCreate(ref model, ref handled);
+            if (handled == false)
+            {
+                try
+                {
+                    model = await CreateModelAsync().ConfigureAwait(false);
+                    LastError = string.Empty;
+                }
+                catch (Exception ex)
+                {
+                    LastError = ex.GetError();
+                }
+            }
+            AfterCreate(model);
+            if (HasError)
+            {
+                model = BeforeView(model, Action.Create);
+                model = await BeforeViewAsync(model, Action.Edit).ConfigureAwait(false);
+            }
+            return HasError ? View("Create", model) : RedirectToAction("Index");
         }
+        partial void BeforeCreate(ref TModel model, ref bool handled);
+        partial void AfterCreate(TModel model);
+
         protected virtual async Task<TModel> CreateModelAsync()
         {
-            using var ctrl = CreateController();
-            var entity = await ctrl.CreateAsync().ConfigureAwait(false);
+            var handled = false;
+            var model = default(TModel);
 
-            return ToModel(entity);
+            BeforeCreateModel(ref model, ref handled);
+            if (handled == false)
+            {
+                using var ctrl = CreateController();
+                var entity = await ctrl.CreateAsync().ConfigureAwait(false);
+
+                model = ToModel(entity);
+            }
+            AfterCreateModel(model);
+            return model;
         }
+        partial void BeforeCreateModel(ref TModel model, ref bool handled);
+        partial void AfterCreateModel(TModel model);
+
 
         [HttpPost]
         [ActionName("Create")]
@@ -95,7 +139,7 @@ namespace SnQTranslator.AspMvc.Controllers
         {
             var handled = false;
 
-            BeforeInsertEntity(model, ref handled);
+            BeforeInsertModel(model, ref handled);
             if (handled == false)
             {
                 try
@@ -111,7 +155,7 @@ namespace SnQTranslator.AspMvc.Controllers
                     LastError = ex.GetError();
                 }
             }
-            AfterInsertEntity(model);
+            AfterInsertModel(model);
             if (HasError)
             {
                 model = BeforeView(model, Action.Create);
@@ -119,26 +163,58 @@ namespace SnQTranslator.AspMvc.Controllers
             }
             return HasError ? View("Create", model) : FromCreateToEdit ? RedirectToAction("Edit", new { model.Id }) : RedirectToAction("Index");
         }
-        partial void BeforeInsertEntity(TModel model, ref bool handled);
-        partial void AfterInsertEntity(TModel model);
+        partial void BeforeInsertModel(TModel model, ref bool handled);
+        partial void AfterInsertModel(TModel model);
 
         [HttpGet]
         [ActionName("Edit")]
         public virtual async Task<IActionResult> EditAsync(int id)
         {
-            var model = await EditModelAsync(id).ConfigureAwait(false);
+            var handled = false;
+            var model = default(TModel);
 
-            model = BeforeView(model, Action.Edit);
-            model = await BeforeViewAsync(model, Action.Edit).ConfigureAwait(false);
-            return View("Edit", model);
+            BeforeEdit(ref model, ref handled);
+            if (handled == false)
+            {
+                try
+                {
+                    model = await EditModelAsync(id).ConfigureAwait(false);
+                    LastError = string.Empty;
+                }
+                catch (Exception ex)
+                {
+                    LastError = ex.GetError();
+                }
+            }
+            AfterEdit(model);
+            if (HasError)
+            {
+                model = BeforeView(model, Action.Edit);
+                model = await BeforeViewAsync(model, Action.Edit).ConfigureAwait(false);
+            }
+            return HasError ? View("Edit", model) : RedirectToAction("Index");
         }
+        partial void BeforeEdit(ref TModel model, ref bool handled);
+        partial void AfterEdit(TModel model);
+
         protected virtual async Task<TModel> EditModelAsync(int id)
         {
-            using var ctrl = CreateController();
-            var entity = await ctrl.GetByIdAsync(id).ConfigureAwait(false);
+            var handled = false;
+            var model = default(TModel);
 
-            return ToModel(entity);
+            BeforeEditModel(ref model, ref handled);
+            if (handled == false)
+            {
+                using var ctrl = CreateController();
+                var entity = await ctrl.GetByIdAsync(id).ConfigureAwait(false);
+
+                model = ToModel(entity);
+            }
+            AfterEditModel(model);
+            return model;
         }
+        partial void BeforeEditModel(ref TModel model, ref bool handled);
+        partial void AfterEditModel(TModel model);
 
         [HttpPost]
         [ActionName("Edit")]
@@ -146,7 +222,7 @@ namespace SnQTranslator.AspMvc.Controllers
         {
             var handled = false;
 
-            BeforeUpdateEntity(model, ref handled);
+            BeforeUpdateModel(model, ref handled);
             if (handled == false)
             {
                 try
@@ -162,7 +238,7 @@ namespace SnQTranslator.AspMvc.Controllers
                     LastError = ex.GetError();
                 }
             }
-            AfterUpdateEntity(model);
+            AfterUpdateModel(model);
             if (HasError)
             {
                 model = BeforeView(model, Action.Edit);
@@ -170,27 +246,49 @@ namespace SnQTranslator.AspMvc.Controllers
             }
             return HasError ? View("Edit", model) : FromEditToIndex ? RedirectToAction("Index") : RedirectToAction("Edit", new { model.Id });
         }
-        partial void BeforeUpdateEntity(TModel model, ref bool handled);
-        partial void AfterUpdateEntity(TModel model);
+        partial void BeforeUpdateModel(TModel model, ref bool handled);
+        partial void AfterUpdateModel(TModel model);
 
         [HttpGet]
         [ActionName("Delete")]
         public virtual async Task<IActionResult> ViewDeleteAsync(int id)
         {
-            using var ctrl = CreateController();
-            var entity = await ctrl.GetByIdAsync(id).ConfigureAwait(false);
-            var model = ToModel(entity);
+            var handled = false;
+            var model = default(TModel);
 
-            model = BeforeView(model, Action.Delete);
-            model = await BeforeViewAsync(model, Action.Delete).ConfigureAwait(false);
-            return View("Delete", model);
+            BeforeDelete(ref model, ref handled);
+            if (handled == false)
+            {
+                try
+                {
+                    using var ctrl = CreateController();
+                    var entity = await ctrl.GetByIdAsync(id).ConfigureAwait(false);
+                    
+                    model = ToModel(entity);
+                    LastError = string.Empty;
+                }
+                catch (Exception ex)
+                {
+                    LastError = ex.GetError();
+                }
+            }
+            AfterDelete(model);
+            if (HasError)
+            {
+                model = BeforeView(model, Action.Delete);
+                model = await BeforeViewAsync(model, Action.Delete).ConfigureAwait(false);
+            }
+            return HasError ? View("Delete", model) : RedirectToAction("Index");
         }
+        partial void BeforeDelete(ref TModel model, ref bool handled);
+        partial void AfterDelete(TModel model);
+
         [ActionName("Delete")]
         public virtual async Task<IActionResult> DeleteAsync(int id)
         {
             var handled = false;
 
-            BeforeDeleteEntity(id, ref handled);
+            BeforeDeleteModel(id, ref handled);
             if (handled == false)
             {
                 try
@@ -205,11 +303,11 @@ namespace SnQTranslator.AspMvc.Controllers
                     LastError = ex.GetError();
                 }
             }
-            AfterDeleteEntity(id);
+            AfterDeleteModel(id);
             return HasError ? RedirectToAction("Delete", new { id }) : RedirectToAction("Index");
         }
-        partial void BeforeDeleteEntity(int id, ref bool handled);
-        partial void AfterDeleteEntity(int id);
+        partial void BeforeDeleteModel(int id, ref bool handled);
+        partial void AfterDeleteModel(int id);
     }
 }
 //MdEnd
