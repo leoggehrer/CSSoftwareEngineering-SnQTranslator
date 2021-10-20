@@ -1,6 +1,6 @@
+//@CodeCopy
 using Microsoft.Extensions.Configuration;
 using System;
-//@CodeCopy
 
 namespace CommonBase.Modules.Configuration
 {
@@ -10,12 +10,14 @@ namespace CommonBase.Modules.Configuration
         {
             var environmentName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
             var builder = new ConfigurationBuilder()
-                .SetBasePath(Environment.CurrentDirectory)
+//                .SetBasePath(Environment.CurrentDirectory)
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                 .AddJsonFile($"appsettings.{environmentName ?? "Development"}.json", optional: true)
                 .AddEnvironmentVariables();
 
-            return builder.Build();
+            var result = builder.Build();
+            System.IO.File.WriteAllText("output.txt", result["ConnectionStrings:DefaultConnection"]);
+            return result;
         }
     }
 }

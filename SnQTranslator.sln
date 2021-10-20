@@ -1,34 +1,35 @@
-
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31019.35
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{E3A59E93-5A1F-4EC9-9C29-60B42759B1EA}") = "CommonBase", "CommonBase\CommonBase.csproj", "{D23A9920-E20F-415D-A478-8DF1003ABE5A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CommonBase", "CommonBase\CommonBase.csproj", "{D23A9920-E20F-415D-A478-8DF1003ABE5A}"
 EndProject
-Project("{E94D649D-9882-4328-B569-1753B4D82DE3}") = "SnQTranslator.Contracts", "SnQTranslator.Contracts\SnQTranslator.Contracts.csproj", "{E8ADBBC2-2B34-4C6E-9AE9-4271E549616B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SnQTranslator.Contracts", "SnQTranslator.Contracts\SnQTranslator.Contracts.csproj", "{E8ADBBC2-2B34-4C6E-9AE9-4271E549616B}"
 EndProject
-Project("{01BC7C03-ED09-4E95-876F-2676DF8E0BA6}") = "SnQTranslator.Logic", "SnQTranslator.Logic\SnQTranslator.Logic.csproj", "{AAAD5ED7-2F0A-4346-864D-99F7DE17369D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SnQTranslator.Logic", "SnQTranslator.Logic\SnQTranslator.Logic.csproj", "{AAAD5ED7-2F0A-4346-864D-99F7DE17369D}"
 EndProject
-Project("{B554FC96-F2B5-490E-BA78-D04091489F16}") = "SnQTranslator.ConApp", "SnQTranslator.ConApp\SnQTranslator.ConApp.csproj", "{92FA6FB8-AD7F-4399-9ADF-ACE035E912C4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SnQTranslator.ConApp", "SnQTranslator.ConApp\SnQTranslator.ConApp.csproj", "{92FA6FB8-AD7F-4399-9ADF-ACE035E912C4}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}")="SolutionItems","SolutionItems","{C4BC300B-0CAF-4A53-815C-C432B6C80611}"
-	ProjectSection(SolutionItems)=preProject
-		AnwendungsentwickerStepByStep.txt=AnwendungsentwickerStepByStep.txt
-		ReadMe.md=ReadMe.md
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionItems", "SolutionItems", "{C4BC300B-0CAF-4A53-815C-C432B6C80611}"
+	ProjectSection(SolutionItems) = preProject
+		AnwendungsentwickerStepByStep.txt = AnwendungsentwickerStepByStep.txt
+		docker-compose.yml = docker-compose.yml
+		ReadMe.md = ReadMe.md
+	EndProjectSection
 EndProject
-Project("{7496B540-DD4E-4AB7-B43C-DC3ABFA19C4D}") = "SnQTranslator.WebApi", "SnQTranslator.WebApi\SnQTranslator.WebApi.csproj", "{DEEE04A7-6F3B-4372-9125-CE9EFD989B0C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SnQTranslator.WebApi", "SnQTranslator.WebApi\SnQTranslator.WebApi.csproj", "{DEEE04A7-6F3B-4372-9125-CE9EFD989B0C}"
 EndProject
-Project("{904C2DAF-FE07-4B56-B4B6-96EB8102B6EE}") = "SnQTranslator.Transfer", "SnQTranslator.Transfer\SnQTranslator.Transfer.csproj", "{27E686AC-5044-42DB-BFBF-5991B7543183}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SnQTranslator.Transfer", "SnQTranslator.Transfer\SnQTranslator.Transfer.csproj", "{27E686AC-5044-42DB-BFBF-5991B7543183}"
 EndProject
-Project("{EF84A526-74F9-40DA-BEF4-86945E94D640}") = "SnQTranslator.AspMvc", "SnQTranslator.AspMvc\SnQTranslator.AspMvc.csproj", "{EAD77CB9-AA6F-4649-84B4-1E44ED11AFF3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SnQTranslator.AspMvc", "SnQTranslator.AspMvc\SnQTranslator.AspMvc.csproj", "{EAD77CB9-AA6F-4649-84B4-1E44ED11AFF3}"
 EndProject
-Project("{CA9EEED1-E4FE-435D-A079-20522DEA4536}") = "CSharpCodeGenerator.ConApp", "CSharpCodeGenerator.ConApp\CSharpCodeGenerator.ConApp.csproj", "{6D3E65AF-C49C-4A23-A15E-83D66D82125C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CSharpCodeGenerator.ConApp", "CSharpCodeGenerator.ConApp\CSharpCodeGenerator.ConApp.csproj", "{6D3E65AF-C49C-4A23-A15E-83D66D82125C}"
 EndProject
-Project("{F188A8BF-FF57-49CF-9F6A-D9B2B23229F2}") = "CSharpCodeGenerator.Logic", "CSharpCodeGenerator.Logic\CSharpCodeGenerator.Logic.csproj", "{9BAEEDDA-2D69-4861-9E58-B36BE5161AB1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CSharpCodeGenerator.Logic", "CSharpCodeGenerator.Logic\CSharpCodeGenerator.Logic.csproj", "{9BAEEDDA-2D69-4861-9E58-B36BE5161AB1}"
 EndProject
-Project("{F2AA164F-9A43-4A5E-9C1D-179901487F76}") = "SnQTranslator.Adapters", "SnQTranslator.Adapters\SnQTranslator.Adapters.csproj", "{54E7AF9B-0944-44F5-A28A-B2CD8CBEC487}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SnQTranslator.Adapters", "SnQTranslator.Adapters\SnQTranslator.Adapters.csproj", "{54E7AF9B-0944-44F5-A28A-B2CD8CBEC487}"
 EndProject
-Project("{898E284C-C71F-4F4C-87FF-B1FCEC63E2F5}") = "SolutionPreprocessorHelper.ConApp", "SolutionPreprocessorHelper.ConApp\SolutionPreprocessorHelper.ConApp.csproj", "{709A80C4-069A-4DCE-80F4-B20F3BFDD10C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SolutionPreprocessorHelper.ConApp", "SolutionPreprocessorHelper.ConApp\SolutionPreprocessorHelper.ConApp.csproj", "{709A80C4-069A-4DCE-80F4-B20F3BFDD10C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

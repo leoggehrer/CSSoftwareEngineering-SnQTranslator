@@ -1,0 +1,1 @@
+Data Source=(localdb)\MSSQLLocalDB;Database=SnQTranslatorDb;Integrated Security=True

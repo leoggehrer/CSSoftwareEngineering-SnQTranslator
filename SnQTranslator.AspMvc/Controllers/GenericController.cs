@@ -82,6 +82,7 @@ namespace SnQTranslator.AspMvc.Controllers
             models = await BeforeViewAsync(models, Action.Index).ConfigureAwait(false);
             return View("Index", models);
         }
+
         [HttpGet]
         [ActionName("Create")]
         public virtual async Task<IActionResult> CreateAsync()

@@ -1,4 +1,5 @@
 //@CodeCopy
+using CommonBase.Extensions;
 using Microsoft.EntityFrameworkCore;
 using SnQTranslator.Contracts;
 using SnQTranslator.Logic.Entities;
@@ -14,8 +15,11 @@ namespace SnQTranslator.Logic.DataContext
 		static SnQTranslatorDbContext()
 		{
 			ClassConstructing();
-			//ConnectionString = CommonBase.Modules.Configuration.AppSettings.Configuration["ConnectionStrings:DefaultConnection"];
-			ConnectionString = "Data Source=(localdb)\\MSSQLLocalDB;Database=SnQTranslatorDb;Integrated Security=True";
+			ConnectionString = CommonBase.Modules.Configuration.AppSettings.Configuration["ConnectionStrings:DefaultConnection"];
+			if (ConnectionString.IsNullOrEmpty())
+            {
+				ConnectionString = "Data Source=dbserver;Database=SnQTranslatorDb;User Id=sa;Password=passme!1234";
+			}
 			ClassConstructed();
 		}
 		static partial void ClassConstructing();
