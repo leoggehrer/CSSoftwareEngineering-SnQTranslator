@@ -16,16 +16,16 @@ namespace SnQTranslator.ConApp
     {
 #if ACCOUNT_ON
         private static string SaUser => "LeoAdmin";
-        private static string SaEmail => "LeoAdmin.SmartNQuick@gmx.at";
+        private static string SaEmail => "LeoAdmin.SnQTranslator@gmx.at";
         private static string SaPwd => "1234LeoAdmin";
 
         private static string AaUser => "AppAdmin";
-        private static string AaEmail => "AppAdmin.SmartNQuick@gmx.at";
+        private static string AaEmail => "AppAdmin.SnQTranslator@gmx.at";
         private static string AaPwd => "1234AppAdmin";
         private static string AaRole => "AppAdmin";
 
         private static string AppUser => "AppUser";
-        private static string AppEmail => "AppUser.SmartNQuick@gmx.at";
+        private static string AppEmail => "AppUser.SnQTranslator@gmx.at";
         private static string AppPwd => "1234AppUser";
         private static string AppRole => "AppUser";
 
@@ -139,10 +139,11 @@ namespace SnQTranslator.ConApp
             });
 
             // import translations
-            foreach (var item in translationData)
-            {
-                await translationCtrl.InsertAsync(item.Entity);
-            }
+            //foreach (var item in translationData)
+            //{
+            //    await translationCtrl.InsertAsync(item.Entity);
+            //}
+            await translationCtrl.InsertAsync(translationData.Select(td => td.Entity));
         }
     }
 }

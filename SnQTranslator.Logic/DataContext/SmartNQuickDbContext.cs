@@ -18,7 +18,7 @@ namespace SnQTranslator.Logic.DataContext
 			ConnectionString = CommonBase.Modules.Configuration.AppSettings.Configuration["ConnectionStrings:DefaultConnection"];
 			if (ConnectionString.IsNullOrEmpty())
             {
-				ConnectionString = "Data Source=dbserver;Database=SnQTranslatorDb;User Id=sa;Password=passme!1234";
+				ConnectionString = "Data Source=(localdb)\\MSSQLLocalDB;Database=SnQTranslatorDb;Integrated Security=True";
 			}
 			ClassConstructed();
 		}

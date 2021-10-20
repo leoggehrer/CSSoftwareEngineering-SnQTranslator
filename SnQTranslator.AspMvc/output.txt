@@ -1,1 +1,12 @@
-Data Source=(localdb)\MSSQLLocalDB;Database=SnQTranslatorDb;Integrated Security=True
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft": "Warning",
+      "Microsoft.Hosting.Lifetime": "Information"
+    },
+    "ConnectionStrings": {
+      "DefaultConnection": "Data Source=dbserver;Database=SnQTranslatorDb;User Id=sa;Password=passme!1234"
+    }
+  }
+}

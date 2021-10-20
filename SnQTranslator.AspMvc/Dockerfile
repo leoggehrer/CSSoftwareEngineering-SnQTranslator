@@ -21,6 +21,9 @@ COPY . .
 WORKDIR "/src/CSharpCodeGenerator.ConApp"
 RUN dotnet build "CSharpCodeGenerator.ConApp.csproj" -c Release -o /app/build
 
+WORKDIR "/src/SnQTranslator.Contracts"
+RUN dotnet build "SnQTranslator.Contracts.csproj" -c Release -o /app/build
+
 WORKDIR "/src/SnQTranslator.AspMvc"
 RUN dotnet build "SnQTranslator.AspMvc.csproj" -c Release -o /app/build
 

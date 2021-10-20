@@ -1,0 +1,1 @@
+Data Source=127.0.0.1;Database=SnQTranslatorDb;User Id=sa;Password=passme!1234
