@@ -15,9 +15,13 @@ namespace SnQTranslator.Logic.DataContext
 		static SnQTranslatorDbContext()
 		{
 			ClassConstructing();
-			ConnectionString = CommonBase.Modules.Configuration.AppSettings.Configuration["ConnectionStrings:DefaultConnection"];
+			ConnectionString = CommonBase.Modules.Configuration.AppSettings.Configuration[StaticLiterals.EnvironmentConnectionStringKey];
 			if (ConnectionString.IsNullOrEmpty())
-            {
+			{
+				ConnectionString = CommonBase.Modules.Configuration.AppSettings.Configuration[StaticLiterals.AppSettingsConnectionStringKey];
+			}
+			if (ConnectionString.IsNullOrEmpty())
+			{
 				ConnectionString = "Data Source=(localdb)\\MSSQLLocalDB;Database=SnQTranslatorDb;Integrated Security=True";
 			}
 			ClassConstructed();

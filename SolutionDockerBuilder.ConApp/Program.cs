@@ -28,18 +28,20 @@ namespace SolutionDockerBuilder.ConApp
         private static string HomePath { get; set; }
         private static string UserPath { get; set; }
         private static string SourcePath { get; set; }
-        static void Main(string[] args)
+
+        private static void Main(/*string[] args*/)
         {
             bool running = false;
 
             do
             {
+                var input = string.Empty;
                 var dockerfiles = PrintHeader();
 
                 Console.Write($"Build [1..{dockerfiles.Count() + 1}|X]?: ");
-                var input = Console.ReadLine();
+                input = Console.ReadLine().ToLower();
 
-                running = input.Equals("x", StringComparison.CurrentCultureIgnoreCase) == false;
+                running = input.Equals("x") == false;
                 if (running)
                 {
                     var numbers = input.Split(',').Where(s => Int32.TryParse(s, out int n))
@@ -56,13 +58,22 @@ namespace SolutionDockerBuilder.ConApp
                         }
                         else if (number > 0 && number <= dockerfiles.Count())
                         {
-                            BuildDockerfile(dockerfiles.ElementAt(number - 1));
+                            BuildDockerfile(dockerfiles.ElementAt(number - 1), true);
                         }
                     }
                 }
+                if (ErrorHandler.HasError)
+                {
+                    Console.Clear();
+                    Console.WriteLine("*** ERROR(S) ***");
+                    ErrorHandler.GetErrors().ToList().ForEach(e => Console.WriteLine(e));
+                    ErrorHandler.Clear();
+                }
+                Console.WriteLine("Press any key to continue...");
+                Console.ReadKey();
             } while (running);
-
         }
+
         private static IEnumerable<string> PrintHeader()
         {
             int index = 0;
@@ -77,8 +88,8 @@ namespace SolutionDockerBuilder.ConApp
 
             foreach (var dockerfile in GetDockerfiles(solutionPath))
             {
-                FileInfo dockerfileInfo = new FileInfo(dockerfile);
-                string directoryName = dockerfileInfo.Directory.Name;
+                var dockerfileInfo = new FileInfo(dockerfile);
+                var directoryName = dockerfileInfo.Directory.Name;
 
                 result.Add(dockerfileInfo.FullName);
                 Console.WriteLine($"Build docker image for: [{++index,2}] {directoryName}");
@@ -87,63 +98,102 @@ namespace SolutionDockerBuilder.ConApp
             Console.WriteLine();
             return result;
         }
-        private static void BuildDockerfile(string dockerfile)
+        private static void BuildDockerfile(string dockerfile, bool buildContracts)
         {
             var maxWaiting = 10 * 60 * 1000;    // 10 minutes
+            var arguments = string.Empty;       // arguments for process start
             var slnPath = Directory.GetParent(Path.GetDirectoryName(dockerfile)).FullName;
-            var csprojFile = GetContractProjectFileFromDockerfile(dockerfile);
-            var csprojLines = default(string[]);
+            var contractsCsproj = GetContractProjectFileFromDockerfile(dockerfile);
+            var codeGeneratorCsproj = GetCSharpCodeGeneratorProjectFileFromDockerfile(dockerfile);
+            var contractsCsprojLines = default(string[]);
 
-            if (string.IsNullOrEmpty(csprojFile) == false)
+            if (string.IsNullOrEmpty(contractsCsproj) == false)
             {
-                csprojLines = File.ReadAllLines(csprojFile, Encoding.Default);
                 try
                 {
-                    //RUN dotnet build "QnSIdentityServer.WebApi.csproj" - c Release - o / app / build
-                    ProcessStartInfo csprojStartInfo = new ProcessStartInfo("dotnet.exe")
+                    contractsCsprojLines = File.ReadAllLines(contractsCsproj, Encoding.Default);
+                    File.WriteAllLines(contractsCsproj, contractsCsprojLines.Select(l => l.Replace("Condition=\"True\"", "Condition=\"False\"")), Encoding.Default);
+
+                    if (buildContracts)
                     {
-                        Arguments = $"build \"{csprojFile}\" -c Release",
-                        //WorkingDirectory = projectPath,
-                        UseShellExecute = false
-                    };
-                    Process.Start(csprojStartInfo).WaitForExit(maxWaiting);
-                    File.WriteAllLines(csprojFile, csprojLines.Select(l => l.Replace("Condition=\"True\"", "Condition=\"False\"")), Encoding.Default);
+                        arguments = $"build \"{contractsCsproj}\" -c Release";
+                        Console.WriteLine(arguments);
+                        Debug.WriteLine($"dotnet.exe {arguments}");
+                        var csprojStartInfo = new ProcessStartInfo("dotnet.exe")
+                        {
+                            Arguments = arguments,
+                            //WorkingDirectory = projectPath,
+                            UseShellExecute = false
+                        };
+                        Process.Start(csprojStartInfo).WaitForExit(maxWaiting);
+
+                        if (string.IsNullOrEmpty(codeGeneratorCsproj) == false)
+                        {
+                            arguments = $"run --project \"{codeGeneratorCsproj}\" -c Release";
+                            Console.WriteLine(arguments);
+                            Debug.WriteLine($"dotnet.exe {arguments}");
+                            csprojStartInfo = new ProcessStartInfo("dotnet.exe")
+                            {
+                                Arguments = arguments,
+                                //WorkingDirectory = projectPath,
+                                UseShellExecute = false
+                            };
+                            Process.Start(csprojStartInfo).WaitForExit(maxWaiting);
+                        }
+                    }
                 }
                 catch (Exception e)
                 {
-                    Debug.WriteLine($"Error: {e.Message}");
+                    ErrorHandler.LastError = e.GetFullError();
+                    Debug.WriteLine($"Error: {ErrorHandler.LastError}");
                 }
             }
             var dockerfileInfo = new FileInfo(dockerfile);
             var directoryName = dockerfileInfo.Directory.Name;
             var directoryFullName = dockerfileInfo.Directory.FullName;
-            var arguments = $"build -f \"{dockerfile}\" --force-rm -t {directoryName.Replace(".", string.Empty).ToLower()}  --label \"com.microsoft.created-by=visual-studio\" --label \"com.microsoft.visual-studio.project-name={directoryName}\" \"{slnPath}\"";
+            var tagLabel = $"{directoryName.Replace(".", string.Empty).ToLower()}";
 
-            Console.WriteLine(arguments);
-            ProcessStartInfo buildStartInfo = new ProcessStartInfo("docker")
-            {
-                Arguments = arguments,
-                WorkingDirectory = directoryFullName,
-                UseShellExecute = false
-            };
             try
             {
+                arguments = $"build -f \"{dockerfile}\" --force-rm -t {tagLabel} --label \"com.microsoft.created-by=visual-studio\" --label \"com.microsoft.visual-studio.project-name={directoryName}\" \"{slnPath}\"";
+                Console.WriteLine(arguments);
+                Debug.WriteLine($"Docker {arguments}");
+                var buildStartInfo = new ProcessStartInfo("docker")
+                {
+                    Arguments = arguments,
+                    WorkingDirectory = directoryFullName,
+                    UseShellExecute = false
+                };
+                Process.Start(buildStartInfo).WaitForExit(maxWaiting);
+
+                arguments = $"scan {tagLabel}";
+                Console.WriteLine(arguments);
+                Debug.WriteLine($"Docker {arguments}");
+                buildStartInfo = new ProcessStartInfo("docker")
+                {
+                    Arguments = arguments,
+                    WorkingDirectory = directoryFullName,
+                    UseShellExecute = false
+                };
                 Process.Start(buildStartInfo).WaitForExit(maxWaiting);
             }
             catch (Exception e)
             {
-                Debug.WriteLine($"Error: {e.Message}");
+                ErrorHandler.LastError = e.GetFullError();
+                Debug.WriteLine($"Error: {ErrorHandler.LastError}");
             }
-            if (csprojLines != null)
+            if (contractsCsprojLines != null)
             {
-                File.WriteAllLines(csprojFile, csprojLines, Encoding.Default);
+                File.WriteAllLines(contractsCsproj, contractsCsprojLines, Encoding.Default);
             }
         }
         private static void BuildDockerfiles(string solutionPath)
         {
+            int counter = 0;
+
             foreach (var dockerfile in GetDockerfiles(solutionPath))
             {
-                BuildDockerfile(dockerfile);
+                BuildDockerfile(dockerfile, counter++ == 0);
             }
         }
 
@@ -163,6 +213,14 @@ namespace SolutionDockerBuilder.ConApp
             var path = Path.GetDirectoryName(dockerfile);
             var dirInfo = Directory.GetParent(path);
             var fileInfo = dirInfo.GetFiles("*.Contracts.*proj", SearchOption.AllDirectories).FirstOrDefault();
+
+            return fileInfo?.FullName;
+        }
+        private static string GetCSharpCodeGeneratorProjectFileFromDockerfile(string dockerfile)
+        {
+            var path = Path.GetDirectoryName(dockerfile);
+            var dirInfo = Directory.GetParent(path);
+            var fileInfo = dirInfo.GetFiles("CSharpCodeGenerator.ConApp.csproj", SearchOption.AllDirectories).FirstOrDefault();
 
             return fileInfo?.FullName;
         }

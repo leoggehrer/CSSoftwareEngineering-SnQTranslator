@@ -1,4 +1,5 @@
 //@CodeCopy
+//MdStart
 using Microsoft.Extensions.Configuration;
 using System;
 
@@ -10,7 +11,7 @@ namespace CommonBase.Modules.Configuration
         {
             var environmentName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
             var builder = new ConfigurationBuilder()
-                .SetBasePath(Environment.CurrentDirectory)
+                //.SetBasePath(Environment.CurrentDirectory)
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                 .AddJsonFile($"appsettings.{environmentName ?? "Development"}.json", optional: true)
                 .AddEnvironmentVariables();
@@ -19,3 +20,4 @@ namespace CommonBase.Modules.Configuration
         }
     }
 }
+//MdEnd
