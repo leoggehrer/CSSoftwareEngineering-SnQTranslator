@@ -1,13 +1,18 @@
 ﻿@using SnQTranslator.AspMvc.Modules.Handler
 @using SnQTranslator.AspMvc.Modules.Session
+@using SnQTranslator.AspMvc.Modules.Language
 @model IEnumerable<SnQTranslator.AspMvc.Models.Persistence.App.Translation>
 
 @{
     var all = string.Empty;
     var page = string.Empty;
     var activeHref = "/Translations/IndexByPage";
-    var title = "Translations";
     var sessionWrapper = new SessionWrapper(Context.Session);
+    var controller = ViewContext.RouteData.Values["controller"].ToString();
+    var action = ViewContext.RouteData.Values["action"].ToString();
+    Func<string, string> translate = Translator.TranslateIt;
+    Func<string, string> translateFor = pn => translate($"{controller}.{pn}");
+    var title = translateFor(controller);
 
     ViewData["Title"] = title;
     if (sessionWrapper.HasValue(nameof(page)))
@@ -20,9 +25,17 @@
 
 @if (string.IsNullOrEmpty(sessionWrapper.SessionToken) == false)
 {
-    <p>
-        <a asp-action="Create">Create a new translation...</a>
-    </p>
+    <div class="d-flex bg-transparent">
+        <div class="mr-auto p-sm-2">
+            <a asp-action="Create" class="btn btn-outline-secondary">@translateFor("Create New")</a>
+        </div>
+        <div class="p-sm-2">
+            <a asp-action="Export" class="btn btn-outline-secondary">@translateFor("Export")</a>
+        </div>
+        <div class="p-sm-2">
+            <a asp-action="Import" class="btn btn-outline-primary">@translateFor("Import")</a>
+        </div>
+    </div>
 }
 
 @if (string.IsNullOrEmpty(ErrorHandler.LastError) == false)

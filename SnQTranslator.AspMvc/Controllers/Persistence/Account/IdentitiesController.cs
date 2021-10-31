@@ -5,7 +5,7 @@ namespace SnQTranslator.AspMvc.Controllers.Persistence.Account
     using System.Threading.Tasks;
     using TContract = Contracts.Persistence.Account.IIdentity;
     using TModel = AspMvc.Models.Persistence.Account.Identity;
-    public partial class IdentitysController : AspMvc.Controllers.GenericController<TContract, TModel>
+    public partial class IdentitiesController : AspMvc.Controllers.GenericController<TContract, TModel>
     {
     }
 }

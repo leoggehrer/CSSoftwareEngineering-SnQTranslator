@@ -5,7 +5,7 @@ namespace SnQTranslator.AspMvc.Controllers.Persistence.Account
     using System.Threading.Tasks;
     using TContract = Contracts.Persistence.Account.IAccess;
     using TModel = AspMvc.Models.Persistence.Account.Access;
-    public partial class AccessController : AspMvc.Controllers.GenericController<TContract, TModel>
+    public partial class AccessesController : AspMvc.Controllers.GenericController<TContract, TModel>
     {
     }
 }
