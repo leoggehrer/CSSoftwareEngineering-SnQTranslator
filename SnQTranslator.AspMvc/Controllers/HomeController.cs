@@ -1,18 +1,17 @@
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.AspNetCore.Mvc;
 using SnQTranslator.AspMvc.Models;
 using System.Diagnostics;
 
-namespace SnQTranslator.AspMvc.Controllers
+namespace SmartNQuick.AspMvc.Controllers
 {
-	public class HomeController : Controller
+    public class HomeController : Controller
 	{
-		private readonly ILogger<HomeController> _logger;
+		//private readonly ILogger<HomeController> _logger;
 
-		public HomeController(ILogger<HomeController> logger)
-		{
-			_logger = logger;
-		}
+		//public HomeController(ILogger<HomeController> logger)
+		//{
+		//	_logger = logger;
+		//}
 
 		public IActionResult Index()
 		{
@@ -24,10 +23,20 @@ namespace SnQTranslator.AspMvc.Controllers
 			return View();
 		}
 
+		public IActionResult Contact()
+		{
+			return View();
+		}
+
 		[ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
 		public IActionResult Error()
 		{
 			return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
 		}
+
+		public IActionResult ErrorList()
+        {
+			return View();
+        }
 	}
 }
