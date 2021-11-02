@@ -1,13 +1,10 @@
-﻿//@Ignore
+﻿//@CopyCode
 using System;
-using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using SnQTranslator.Adapters;
+using SnQTranslator.Adapters.Modules.Account;
 using Factory = SnQTranslator.Adapters.Factory;
 #if ACCOUNT_ON
-using SnQTranslator.Adapters.Modules.Account;
 using System.Reflection;
 #endif
 namespace SnQTranslator.ConApp
@@ -106,44 +103,12 @@ namespace SnQTranslator.ConApp
 #endif
             Task.Run(async () =>
             {
-                Console.Write("Start: Import csv:  ");
+                Console.Write("Start: Import:  ");
                 Console.WriteLine(DateTime.Now);
-                await ImportCsvDataAsync();
-                Console.Write("Finish: Import csv: ");
+                await ImportDataAsync();
+                Console.Write("Finish: Import: ");
                 Console.WriteLine(DateTime.Now);
             }).Wait();
-        }
-
-        private static async Task ImportCsvDataAsync()
-        {
-            using var translationCtrl = Create<Contracts.Persistence.App.ITranslation>();
-            var translationData = File.ReadAllLines("Data\\WordsDeToEn.csv", Encoding.Default)
-                                      .Select(l => l.Split(";"))
-                                      .Where(d => d.Length == 2)
-                                      .Select(d =>
-            {
-                var wordDe = d[0].Split(",")[0];
-                var wordEn = d[1].Split(",")[0];
-
-                return new
-                {
-                    Data = d,
-                    Entity = new Transfer.Models.Persistence.App.Translation
-                    {
-                        KeyLanguage = Contracts.Modules.Common.LanguageCode.En,
-                        Key = wordEn,
-                        ValueLanguage = Contracts.Modules.Common.LanguageCode.De,
-                        Value = wordDe
-                    }
-                };
-            });
-
-            // import translations
-            //foreach (var item in translationData)
-            //{
-            //    await translationCtrl.InsertAsync(item.Entity);
-            //}
-            await translationCtrl.InsertAsync(translationData.Select(td => td.Entity));
         }
     }
 }

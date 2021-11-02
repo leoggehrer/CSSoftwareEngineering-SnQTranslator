@@ -21,4 +21,8 @@
     <ProjectReference Include="..\SnQTranslator.Adapters\SnQTranslator.Adapters.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Models\Shadow\" />
+  </ItemGroup>
+
 </Project>
