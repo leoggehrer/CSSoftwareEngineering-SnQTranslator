@@ -23,6 +23,7 @@ namespace SnQTranslator.ConApp
                     Data = d,
                     Entity = new Transfer.Models.Persistence.App.Translation
                     {
+                        AppName = string.Empty,
                         KeyLanguage = Contracts.Modules.Common.LanguageCode.En,
                         Key = wordEn,
                         ValueLanguage = Contracts.Modules.Common.LanguageCode.De,
@@ -32,10 +33,6 @@ namespace SnQTranslator.ConApp
             });
 
             // import translations
-            //foreach (var item in translationData)
-            //{
-            //    await translationCtrl.InsertAsync(item.Entity);
-            //}
             await translationCtrl.InsertAsync(translationData.Select(td => td.Entity));
         }
     }

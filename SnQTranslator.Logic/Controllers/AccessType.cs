@@ -1,4 +1,4 @@
-//@CodeCopy
+﻿//@CodeCopy
 //MdStart
 
 namespace SnQTranslator.Logic.Controllers

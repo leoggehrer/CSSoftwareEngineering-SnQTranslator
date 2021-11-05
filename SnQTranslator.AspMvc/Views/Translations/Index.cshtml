@@ -45,62 +45,64 @@
     </div>
 }
 
-@{
-    var appName = sessionWrapper.GetStringValue("appname");
-    var appNames = Model.GroupBy(m => m.AppName).Select(e => e.Key).OrderBy(e => e);
+<div class="row ml-auto">
+    @{
+        var appName = sessionWrapper.GetStringValue("appname");
+        var appNames = Model.GroupBy(m => m.AppName).Select(e => e.Key).OrderBy(e => e);
 
-    if (appNames.Any(e => e != null && e.Equals(appName)) == false)
-    {
-        appName = null;
-    }
-    var selectItems = new SelectList(appNames).ToList();
-
-    selectItems.ForEach(e =>
-    {
-        if (string.IsNullOrEmpty(e.Text))
+        if (appNames.Any(e => e != null && e.Equals(appName)) == false)
         {
-            e.Text = "*";
+            appName = null;
         }
-        if (appName != null && e != null && e.Text.Equals(appName))
-        {
-            e.Selected = true;
-        }
-    });
-    char chrStart = 'A', chrEnd = 'Z';
-    <div class="d-flex justify-content-center">
-        <div class="p-0" style="margin-right: 10px; min-width: 100px;">
-            @Html.DropDownList("AppNames",
-                                selectItems,
-                                null,
-                                new
-                                     {
-                                    @class = "form-control",
-                                    @onchange = "callByAppName(this.value)"
-                                })
-        </div>
-        @for (char chrRun = chrStart; chrRun <= chrEnd; chrRun++)
-        {
-            var strRun = Char.ToString(chrRun);
+        var selectItems = new SelectList(appNames).ToList();
 
-            if (chrRun.ToString().Equals(page, StringComparison.CurrentCultureIgnoreCase))
+        selectItems.ForEach(e =>
+        {
+            if (string.IsNullOrEmpty(e.Text))
             {
-                <div class="p-sm-0"><a class="page-link" style="background-color: lightgray;" href="@($"{activeHref}?page={strRun}")">@strRun</a></div>
+                e.Text = "*";
+            }
+            if (appName != null && e != null && e.Text.Equals(appName))
+            {
+                e.Selected = true;
+            }
+        });
+        char chrStart = 'A', chrEnd = 'Z';
+        <div class="d-flex justify-content-center">
+            <div class="p-0" style="margin-right: 10px; min-width: 200px;">
+                @Html.DropDownList("AppNames",
+                                    selectItems,
+                                    null,
+                                    new
+                                         {
+                                        @class = "form-control",
+                                        @onchange = "callByAppName(this.value)"
+                                    })
+            </div>
+            @for (char chrRun = chrStart; chrRun <= chrEnd; chrRun++)
+            {
+                var strRun = Char.ToString(chrRun);
+
+                if (chrRun.ToString().Equals(page, StringComparison.CurrentCultureIgnoreCase))
+                {
+                    <div class="p-sm-0"><a class="page-link" style="background-color: lightgray;" href="@($"{activeHref}?page={strRun}")">@strRun</a></div>
+                }
+                else
+                {
+                    <div class="p-sm-0"><a class="page-link" href="@($"{activeHref}?page={strRun}")">@strRun</a></div>
+                }
+            }
+            @if (string.IsNullOrEmpty(page) || page.Equals(all, StringComparison.CurrentCultureIgnoreCase))
+            {
+                <div class="p-0" style="margin-left: 10px;"><a class="page-link" style="background-color: lightgray;" href="@($"{activeHref}?page={all}")">All</a></div>
             }
             else
             {
-                <div class="p-sm-0"><a class="page-link" href="@($"{activeHref}?page={strRun}")">@strRun</a></div>
+                <div class="p-0" style="margin-left: 10px;"><a class="page-link" href="@($"{activeHref}")">All</a></div>
             }
-        }
-        @if (string.IsNullOrEmpty(page) || page.Equals(all, StringComparison.CurrentCultureIgnoreCase))
-        {
-            <div class="p-0" style="margin-left: 10px;"><a class="page-link" style="background-color: lightgray;" href="@($"{activeHref}?page={all}")">All</a></div>
-        }
-        else
-        {
-            <div class="p-0" style="margin-left: 10px;"><a class="page-link" href="@($"{activeHref}")">All</a></div>
-        }
-    </div>
-}
+        </div>
+    }
+</div>
 <p></p>
 
 <table class="table">

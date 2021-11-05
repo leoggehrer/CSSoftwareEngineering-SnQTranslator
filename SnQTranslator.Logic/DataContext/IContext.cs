@@ -1,4 +1,4 @@
-//@CodeCopy
+﻿//@CodeCopy
 using Microsoft.EntityFrameworkCore;
 using SnQTranslator.Contracts;
 using SnQTranslator.Logic.Entities;

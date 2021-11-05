@@ -50,6 +50,18 @@ namespace SnQTranslator.AspMvc.Controllers.Persistence.App
             return RedirectToAction("IndexByPage", new { page });
         }
 
+        protected override async Task<Model> CreateModelAsync()
+        {
+            var result = await base.CreateModelAsync().ConfigureAwait(false);
+            var appname = SessionWrapper.GetStringValue("appname");
+
+            if (appname.HasContent() && appname.Equals("*") == false)
+            {
+                result.AppName = appname;
+            }
+            return result;
+        }
+
         #region Export and Import
         protected override string[] CsvHeader => new string[]
         {
