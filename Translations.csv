@@ -33,8 +33,6 @@
 0;SnQTranslator;En;IdentityUsers.Email;De;Email
 0;SnQTranslator;En;IdentityUsers.Lastname;De;Nachname
 0;SnQTranslator;En;IdentityUsers.Firstname;De;Vorname
-0;SnQTranslator;En;IdentityUsers.EnableJwtAuth;De;Jwt-Freigabe
-0;SnQTranslator;En;IdentityUsers.AccessFailedCount;De;Fehlversuche
 0;SnQTranslator;En;IdentityUsers.State;De;State
 0;SnQTranslator;En;IdentityUsers.Edit;De;Bearbeiten
 0;SnQTranslator;En;IdentityUsers.Delete;De;Löschen
