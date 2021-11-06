@@ -10,6 +10,18 @@ namespace SnQTranslator.AspMvc.Controllers.Persistence.App
 {
     public partial class TranslationsController
     {
+        protected override async Task<Model> CreateModelAsync()
+        {
+            var appName = SessionWrapper.GetStringValue("appname");
+            var result = await base.CreateModelAsync().ConfigureAwait(false);
+
+            if (appName != null && appName.Equals("*") == false)
+            {
+                result.AppName = appName;
+            }
+            return result;
+        }
+
         public override Task<IActionResult> IndexAsync()
         {
             var page = SessionWrapper.GetStringValue("page");
@@ -77,7 +89,7 @@ namespace SnQTranslator.AspMvc.Controllers.Persistence.App
             var model = new Models.Modules.Csv.ImportProtocol() { BackController = ControllerName };
 
             if (error.HasContent())
-                LastError = error;
+                LastViewError = error;
 
             return View(model);
         }

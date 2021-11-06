@@ -40,6 +40,10 @@ namespace SnQTranslator.Adapters
                 {
                     result = new Controller.GenericControllerAdapter<SnQTranslator.Contracts.Persistence.Account.IUser>() as Contracts.Client.IAdapterAccess<C>;
                 }
+                else if (typeof(C) == typeof(SnQTranslator.Contracts.Business.App.IAppItem))
+                {
+                    result = new Controller.GenericControllerAdapter<SnQTranslator.Contracts.Business.App.IAppItem>() as Contracts.Client.IAdapterAccess<C>;
+                }
                 else if (typeof(C) == typeof(SnQTranslator.Contracts.Business.Account.IAppAccess))
                 {
                     result = new Controller.GenericControllerAdapter<SnQTranslator.Contracts.Business.Account.IAppAccess>() as Contracts.Client.IAdapterAccess<C>;
@@ -89,6 +93,11 @@ namespace SnQTranslator.Adapters
                 else if (typeof(C) == typeof(SnQTranslator.Contracts.Persistence.Account.IUser))
                 {
                     result = new Service.GenericServiceAdapter<SnQTranslator.Contracts.Persistence.Account.IUser, Transfer.Models.Persistence.Account.User>(BaseUri, "Users")
+                    as Contracts.Client.IAdapterAccess<C>;
+                }
+                else if (typeof(C) == typeof(SnQTranslator.Contracts.Business.App.IAppItem))
+                {
+                    result = new Service.GenericServiceAdapter<SnQTranslator.Contracts.Business.App.IAppItem, Transfer.Models.Business.App.AppItem>(BaseUri, "AppItems")
                     as Contracts.Client.IAdapterAccess<C>;
                 }
                 else if (typeof(C) == typeof(SnQTranslator.Contracts.Business.Account.IAppAccess))
@@ -142,6 +151,10 @@ namespace SnQTranslator.Adapters
                 {
                     result = new Controller.GenericControllerAdapter<SnQTranslator.Contracts.Persistence.Account.IUser>(sessionToken) as Contracts.Client.IAdapterAccess<C>;
                 }
+                else if (typeof(C) == typeof(SnQTranslator.Contracts.Business.App.IAppItem))
+                {
+                    result = new Controller.GenericControllerAdapter<SnQTranslator.Contracts.Business.App.IAppItem>(sessionToken) as Contracts.Client.IAdapterAccess<C>;
+                }
                 else if (typeof(C) == typeof(SnQTranslator.Contracts.Business.Account.IAppAccess))
                 {
                     result = new Controller.GenericControllerAdapter<SnQTranslator.Contracts.Business.Account.IAppAccess>(sessionToken) as Contracts.Client.IAdapterAccess<C>;
@@ -184,6 +197,10 @@ namespace SnQTranslator.Adapters
                 else if (typeof(C) == typeof(SnQTranslator.Contracts.Persistence.Account.IUser))
                 {
                     result = new Service.GenericServiceAdapter<SnQTranslator.Contracts.Persistence.Account.IUser, Transfer.Models.Persistence.Account.User>(sessionToken, BaseUri, "Users") as Contracts.Client.IAdapterAccess<C>;
+                }
+                else if (typeof(C) == typeof(SnQTranslator.Contracts.Business.App.IAppItem))
+                {
+                    result = new Service.GenericServiceAdapter<SnQTranslator.Contracts.Business.App.IAppItem, Transfer.Models.Business.App.AppItem>(sessionToken, BaseUri, "AppItems") as Contracts.Client.IAdapterAccess<C>;
                 }
                 else if (typeof(C) == typeof(SnQTranslator.Contracts.Business.Account.IAppAccess))
                 {

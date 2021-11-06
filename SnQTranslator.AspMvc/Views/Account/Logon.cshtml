@@ -1,59 +1,68 @@
-@using SnQTranslator.AspMvc.Modules.Handler
-@using SnQTranslator.AspMvc.Modules.Session
-@using SnQTranslator.AspMvc.Models.Modules.Account
-@model LogonViewModel
-
+@*@CodeCopy*@
+@*#if ACCOUNT_ON*@
 @{
-	SessionWrapper sessionWrapper = new SessionWrapper(Context.Session);
+    @using Microsoft.AspNetCore.Mvc.Rendering
+    @using SnQTranslator.AspMvc.Modules.Session
+    @using SnQTranslator.AspMvc.Modules.Handler
+    @using SnQTranslator.AspMvc.Modules.Language
+    @using SnQTranslator.AspMvc.Models.Modules.Account
+    @model LogonViewModel
+
+    var sessionWrapper = new SessionWrapper(Context.Session);
+    var controller = ViewContext.RouteData.Values["controller"].ToString();
+    var action = ViewContext.RouteData.Values["action"].ToString();
+    Func<string, string> translate = Translator.TranslateIt;
+    Func<string, string> translateFor = pn => translate($"{controller}.{pn}");
+    var title = translateFor(action);
+    var subTitle = translate("Please provide your user credentials to proceed:");
+    var submit = translateFor("Logon");
+    var forgotPassword = translate("Forgot your password?");
+
+    ViewData["Title"] = title;
+
+    <hr />
+
+    @if (string.IsNullOrEmpty(ErrorHandler.LastViewError) == false)
+    {
+        <div class="alert alert-danger" role="alert">
+            @ErrorHandler.GetLastViewErrorAndClear()
+        </div>
+    }
+
+    <div class="vertical-flex-center">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-sm-12 text-center">
+                    <h2>@title</h2>
+                    <h4>@subTitle</h4>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-8 offset-2 text-center">
+                    <div class="account-wall">
+                        <span class="profile-img text-center">
+                            <i class="fas fa-user"></i>
+                        </span>
+                        @using (Html.BeginForm("Logon", "Account", new { returnUrl = "" }, FormMethod.Post, null, new { @class = "form-signin", role = "form" }))
+                        {
+                            @Html.AntiForgeryToken()
+                            @Html.ValidationSummary(true)
+
+                            <input name="@nameof(Model.ReturnUrl)" type="hidden" value="@Model.ReturnUrl" />
+                            <input name="@nameof(Model.IdentityUrl)" type="text" class="form-control" placeholder="@translate("Logon.IdentityUrl")" value="@Model.IdentityUrl" />
+                            <p></p>
+                            <input name="@nameof(Model.Email)" type="text" class="form-control" placeholder="@translate("Logon.EMail")" required autofocus />
+                            <p></p>
+                            <input name="@nameof(Model.Password)" type="password" class="form-control" placeholder="@translate("Logon.Password")" required />
+                            <button class="btn btn-lg btn-primary btn-block" type="submit">
+                                @translateFor("Sign in")
+                            </button>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 }
-
-@{
-	string controller = ViewContext.RouteData.Values["controller"].ToString();
-	string action = ViewContext.RouteData.Values["action"].ToString();
-	string title = action;
-	string subTitle = "Please provide your user credentials to proceed:";
-
-	ViewData["Title"] = title;
-}
-
-<hr />
-
-<div class="vertical-flex-center">
-	<div class="container-fluid">
-		<div class="row">
-			<div class="col-sm-12 text-center">
-				<h2>@title</h2>
-				<h4>@subTitle</h4>
-			</div>
-		</div>
-		<div class="row">
-			<div class="col-sm-8 offset-2 text-center">
-				<div class="account-wall">
-					<span class="profile-img text-center">
-						<i class="fas fa-user"></i>
-					</span>
-					@using (Html.BeginForm("Logon", "Account", new { returnUrl = "" }, FormMethod.Post, null, new { @class = "form-signin", role = "form" }))
-					{
-						@Html.AntiForgeryToken()
-						@Html.ValidationSummary(true)
-						@Html.HiddenFor(m => m.ReturnUrl)
-						<input name="@nameof(Model.Email)" type="text" class="form-control" placeholder="Email" required autofocus />
-						<p></p>
-						<input name="@nameof(Model.Password)" type="password" class="form-control" placeholder="Password" required />
-						<p></p>
-						<button class="btn btn-lg btn-primary btn-block" type="submit">
-							Sign in
-						</button>
-					}
-					@if (string.IsNullOrEmpty(ErrorHandler.LastError) == false)
-					{
-						<p></p>
-						<div class="alert alert-danger" role="alert">
-							@ErrorHandler.GetLastErrorAndClear()
-						</div>
-					}
-				</div>
-			</div>
-		</div>
-	</div>
-</div>
+@*#endif*@

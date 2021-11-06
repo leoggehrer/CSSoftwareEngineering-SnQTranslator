@@ -1,4 +1,4 @@
-@*@CodeCopy*@
+﻿@*@CodeCopy*@
 @{
     @using SnQTranslator.AspMvc.Modules.Handler
     @using Microsoft.AspNetCore.Mvc.Rendering
@@ -18,10 +18,10 @@
 
     <h1>@title</h1>
 
-    @if (string.IsNullOrEmpty(ErrorHandler.LastError) == false)
+    @if (string.IsNullOrEmpty(ErrorHandler.LastViewError) == false)
     {
         <div class="alert alert-danger" role="alert">
-            @ErrorHandler.GetLastErrorAndClear()
+            @ErrorHandler.GetLastViewErrorAndClear()
         </div>
     }
 

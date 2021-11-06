@@ -1,4 +1,4 @@
-//@CodeCopy
+﻿//@CodeCopy
 //MdStart
 using CommonBase.Extensions;
 using SnQTranslator.Logic.Modules.Exception;

@@ -37,6 +37,10 @@ namespace SnQTranslator.Logic
             {
                 controller = new Controllers.Persistence.Account.UserController(CreateContext()) as Contracts.Client.IControllerAccess<C>;
             }
+            else if (typeof(C) == typeof(SnQTranslator.Contracts.Business.App.IAppItem))
+            {
+                controller = new Controllers.Business.App.AppItemController(CreateContext()) as Contracts.Client.IControllerAccess<C>;
+            }
             else if (typeof(C) == typeof(SnQTranslator.Contracts.Business.Account.IAppAccess))
             {
                 controller = new Controllers.Business.Account.AppAccessController(CreateContext()) as Contracts.Client.IControllerAccess<C>;
@@ -83,6 +87,10 @@ namespace SnQTranslator.Logic
             else if (typeof(C) == typeof(SnQTranslator.Contracts.Persistence.Account.IUser))
             {
                 controller = new Controllers.Persistence.Account.UserController(sharedController as Controllers.ControllerObject) as Contracts.Client.IControllerAccess<C>;
+            }
+            else if (typeof(C) == typeof(SnQTranslator.Contracts.Business.App.IAppItem))
+            {
+                controller = new Controllers.Business.App.AppItemController(sharedController as Controllers.ControllerObject) as Contracts.Client.IControllerAccess<C>;
             }
             else if (typeof(C) == typeof(SnQTranslator.Contracts.Business.Account.IAppAccess))
             {
@@ -159,6 +167,14 @@ namespace SnQTranslator.Logic
             else if (typeof(C) == typeof(SnQTranslator.Contracts.Persistence.Account.IUser))
             {
                 controller = new Controllers.Persistence.Account.UserController(CreateContext())
+                {
+                    SessionToken = sessionToken
+                }
+                as Contracts.Client.IControllerAccess<C>;
+            }
+            else if (typeof(C) == typeof(SnQTranslator.Contracts.Business.App.IAppItem))
+            {
+                controller = new Controllers.Business.App.AppItemController(CreateContext())
                 {
                     SessionToken = sessionToken
                 }
