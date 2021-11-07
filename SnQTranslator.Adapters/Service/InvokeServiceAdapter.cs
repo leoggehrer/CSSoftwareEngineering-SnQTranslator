@@ -1,6 +1,5 @@
 ﻿//@CodeCopy
 //MdStart
-
 #if ACCOUNT_ON
 using SnQTranslator.Adapters.Exceptions;
 using SnQTranslator.Transfer.Models.Modules.Account;
