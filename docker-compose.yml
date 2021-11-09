@@ -10,7 +10,7 @@ services:
       - ASPNETCORE_URLS=http://+:80
       - ASPNETCORE_CONNECTIONSTRING=Server=host.docker.internal,14330; Database=SnQTranslatorDb; User Id=sa;Password=passme!1234
     ports:
-      - "34810:80"
+      - "34785:80"
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
       - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
@@ -25,7 +25,7 @@ services:
       - ASPNETCORE_TRANSLATIONSERVER=http://host.docker.internal:34785/api
       - ASPNETCORE_STATICPAGESERVER=http://host.docker.internal:34820/api
     ports:
-      - "34815:80"
+      - "34790:80"
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
       - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro

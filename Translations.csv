@@ -1,50 +1,50 @@
 ﻿Id;AppName;KeyLanguage;Key;ValueLanguage;Value
-0;SnQTradingCompany;En;PortalMenu.Home;De;Home
-0;SnQTradingCompany;En;PortalMenu.Privacy;De;Privat
-0;SnQTradingCompany;En;LoginMenu.Logon;De;Anmelden
-0;SnQTradingCompany;En;LoginMenu.Logout;De;Abmelden
-0;SnQTradingCompany;En;LoginMenu.Access-Authorization;De;Zugriffe
-0;SnQTradingCompany;En;LoginMenu.Identity-User;De;Benutzer
-0;SnQTradingCompany;En;LoginMenu.Role-Management;De;Role-Verwaltung
-0;SnQTradingCompany;En;LoginMenu.Change password;De;Kennwort ändern
-0;SnQTradingCompany;En;LoginMenu.Reset password;De;Kennwort zurücksetzen
-0;SnQTradingCompany;En;Account.Logon;De;Anmeldung
-0;SnQTradingCompany;En;Please provide your user credentials to proceed:;De;Geben Sie bitte die Benutzerdaten ein
-0;SnQTradingCompany;En;Forgot your password?;De;Kennwort vergessen?
-0;SnQTradingCompany;En;Account.Email;De;Email
-0;SnQTradingCompany;En;Account.Password;De;Kennwort
-0;SnQTradingCompany;En;AppAccesses.AppAccesses;De;Zugriffe
-0;SnQTradingCompany;En;AppAccesses.Create New;De;Eintrag erstellen
-0;SnQTradingCompany;En;AppAccesses.Export;De;Export
-0;SnQTradingCompany;En;AppAccesses.Import;De;Import
-0;SnQTradingCompany;En;AppAccesses.Name;De;Name
-0;SnQTradingCompany;En;AppAccesses.Email;De;Email
-0;SnQTradingCompany;En;AppAccesses.EnableJwtAuth;De;Jwt-Freigabe
-0;SnQTradingCompany;En;AppAccesses.ManyItems;De;ManyItems
-0;SnQTradingCompany;En;AppAccesses.AccessFailedCount;De;Falsche Anmeldungen
-0;SnQTradingCompany;En;AppAccesses.State;De;State
-0;SnQTradingCompany;En;AppAccesses.Edit;De;Bearbeiten
-0;SnQTradingCompany;En;AppAccesses.Delete;De;Löschen
-0;SnQTradingCompany;En;IdentityUsers.IdentityUsers;De;Benutzer
-0;SnQTradingCompany;En;IdentityUsers.Create New;De;Eintrag erstellen
-0;SnQTradingCompany;En;IdentityUsers.Export;De;Export
-0;SnQTradingCompany;En;IdentityUsers.Import;De;Import
-0;SnQTradingCompany;En;IdentityUsers.Name;De;Name
-0;SnQTradingCompany;En;IdentityUsers.Email;De;Email
-0;SnQTradingCompany;En;IdentityUsers.Lastname;De;Nachname
-0;SnQTradingCompany;En;IdentityUsers.Firstname;De;Vorname
-0;SnQTradingCompany;En;IdentityUsers.State;De;State
-0;SnQTradingCompany;En;IdentityUsers.Edit;De;Bearbeiten
-0;SnQTradingCompany;En;IdentityUsers.Delete;De;Löschen
-0;SnQTradingCompany;En;Roles.Roles;De;Rolen
-0;SnQTradingCompany;En;Roles.Create New;De;Eintrag erstellen
-0;SnQTradingCompany;En;Roles.Designation;De;Bezeichnung
-0;SnQTradingCompany;En;Roles.Description;De;Beschreibung
-0;SnQTradingCompany;En;Account.ChangePassword;De;Kennwort ändern
-0;SnQTradingCompany;En;You are logged in as;De;Angemeldet als
-0;SnQTradingCompany;En;Account;De;Konto
-0;SnQTradingCompany;En;Account.OldPassword;De;Altes Kennwort
-0;SnQTradingCompany;En;Account.NewPassword;De;Neues Kennwort
-0;SnQTradingCompany;En;Account.ConfirmPassword;De;Kennwort bestätigen
-0;SnQTradingCompany;En;Account.ResetPassword;De;Kennwort zurücksetzen
-0;SnQTradingCompany;En;Reset Password Form;De;Kennwort zurücksetzen
+0;SnQTranslator;En;PortalMenu.Home;De;Home
+0;SnQTranslator;En;PortalMenu.Privacy;De;Privat
+0;SnQTranslator;En;LoginMenu.Logon;De;Anmelden
+0;SnQTranslator;En;LoginMenu.Logout;De;Abmelden
+0;SnQTranslator;En;LoginMenu.Access-Authorization;De;Zugriffe
+0;SnQTranslator;En;LoginMenu.Identity-User;De;Benutzer
+0;SnQTranslator;En;LoginMenu.Role-Management;De;Role-Verwaltung
+0;SnQTranslator;En;LoginMenu.Change password;De;Kennwort ändern
+0;SnQTranslator;En;LoginMenu.Reset password;De;Kennwort zurücksetzen
+0;SnQTranslator;En;Account.Logon;De;Anmeldung
+0;SnQTranslator;En;Please provide your user credentials to proceed:;De;Geben Sie bitte die Benutzerdaten ein
+0;SnQTranslator;En;Forgot your password?;De;Kennwort vergessen?
+0;SnQTranslator;En;Account.Email;De;Email
+0;SnQTranslator;En;Account.Password;De;Kennwort
+0;SnQTranslator;En;AppAccesses.AppAccesses;De;Zugriffe
+0;SnQTranslator;En;AppAccesses.Create New;De;Eintrag erstellen
+0;SnQTranslator;En;AppAccesses.Export;De;Export
+0;SnQTranslator;En;AppAccesses.Import;De;Import
+0;SnQTranslator;En;AppAccesses.Name;De;Name
+0;SnQTranslator;En;AppAccesses.Email;De;Email
+0;SnQTranslator;En;AppAccesses.EnableJwtAuth;De;Jwt-Freigabe
+0;SnQTranslator;En;AppAccesses.ManyItems;De;ManyItems
+0;SnQTranslator;En;AppAccesses.AccessFailedCount;De;Falsche Anmeldungen
+0;SnQTranslator;En;AppAccesses.State;De;State
+0;SnQTranslator;En;AppAccesses.Edit;De;Bearbeiten
+0;SnQTranslator;En;AppAccesses.Delete;De;Löschen
+0;SnQTranslator;En;IdentityUsers.IdentityUsers;De;Benutzer
+0;SnQTranslator;En;IdentityUsers.Create New;De;Eintrag erstellen
+0;SnQTranslator;En;IdentityUsers.Export;De;Export
+0;SnQTranslator;En;IdentityUsers.Import;De;Import
+0;SnQTranslator;En;IdentityUsers.Name;De;Name
+0;SnQTranslator;En;IdentityUsers.Email;De;Email
+0;SnQTranslator;En;IdentityUsers.Lastname;De;Nachname
+0;SnQTranslator;En;IdentityUsers.Firstname;De;Vorname
+0;SnQTranslator;En;IdentityUsers.State;De;State
+0;SnQTranslator;En;IdentityUsers.Edit;De;Bearbeiten
+0;SnQTranslator;En;IdentityUsers.Delete;De;Löschen
+0;SnQTranslator;En;Roles.Roles;De;Rolen
+0;SnQTranslator;En;Roles.Create New;De;Eintrag erstellen
+0;SnQTranslator;En;Roles.Designation;De;Bezeichnung
+0;SnQTranslator;En;Roles.Description;De;Beschreibung
+0;SnQTranslator;En;Account.ChangePassword;De;Kennwort ändern
+0;SnQTranslator;En;You are logged in as;De;Angemeldet als
+0;SnQTranslator;En;Account;De;Konto
+0;SnQTranslator;En;Account.OldPassword;De;Altes Kennwort
+0;SnQTranslator;En;Account.NewPassword;De;Neues Kennwort
+0;SnQTranslator;En;Account.ConfirmPassword;De;Kennwort bestätigen
+0;SnQTranslator;En;Account.ResetPassword;De;Kennwort zurücksetzen
+0;SnQTranslator;En;Reset Password Form;De;Kennwort zurücksetzen
