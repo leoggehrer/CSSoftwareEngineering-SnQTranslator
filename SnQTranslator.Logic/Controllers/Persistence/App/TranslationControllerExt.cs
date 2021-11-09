@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace SnQTranslator.Logic.Controllers.Persistence.App
 {
-    partial class TranslationController
+    internal partial class TranslationController
     {
         [Modules.Security.AllowAnonymous]
         public override Task<int> CountAsync()
@@ -16,11 +16,6 @@ namespace SnQTranslator.Logic.Controllers.Persistence.App
         {
             return ExecuteCountByAsync(predicate);
         }
-        //[Modules.Security.AllowAnonymous]
-        //public override async Task<ITranslation> GetByIdAsync(int id)
-        //{
-        //    return await ExecuteGetEntityByIdAsync(id).ConfigureAwait(false);
-        //}
         [Modules.Security.AllowAnonymous]
         public override async Task<IEnumerable<ITranslation>> GetAllAsync()
         {
@@ -40,38 +35,5 @@ namespace SnQTranslator.Logic.Controllers.Persistence.App
             result.ValueLanguage = Contracts.Modules.Common.LanguageCode.De;
             return result;
         }
-        //[Modules.Security.AllowAnonymous]
-        //public override async Task<ITranslation> InsertAsync(ITranslation entity)
-        //{
-        //    var innerEntity = new Entities.Persistence.App.Translation();
-
-        //    innerEntity.CopyProperties(entity);
-        //    return await ExecuteInsertEntityAsync(innerEntity).ConfigureAwait(false);
-        //}
-        //[Modules.Security.AllowAnonymous]
-        //public override async Task<ITranslation> UpdateAsync(ITranslation entity)
-        //{
-        //    var innerEntity = new Entities.Persistence.App.Translation();
-
-        //    innerEntity.CopyProperties(entity);
-        //    return await ExecuteUpdateEntityAsync(innerEntity).ConfigureAwait(false);
-        //}
-        //[Modules.Security.AllowAnonymous]
-        //public override async Task DeleteAsync(int id)
-        //{
-        //    var innerEntity = await GetEntityByIdAsync(id).ConfigureAwait(false);
-
-        //    await ExecuteDeleteEntityAsync(innerEntity).ConfigureAwait(false);
-        //}
-        //[Modules.Security.AllowAnonymous]
-        //public override Task<int> SaveChangesAsync()
-        //{
-        //    return ExecuteSaveChangesAsync();
-        //}
-        //[Modules.Security.AllowAnonymous]
-        //public override Task<int> RejectChangesAsync()
-        //{
-        //    return ExecuteRejectChangesAsync();
-        //}
     }
 }
