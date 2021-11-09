@@ -24,7 +24,7 @@ namespace SnQTranslator.AspMvc.Controllers.Persistence.App
 
         public override Task<IActionResult> IndexAsync()
         {
-            var page = SessionWrapper.GetStringValue("page");
+            var page = SessionWrapper.GetStringValue("page", "A");
 
             return Task.Run<IActionResult>(() => RedirectToAction("IndexByPage", new { page }));
         }
