@@ -9,21 +9,18 @@
 
     var viewBagWrapper = new ViewBagWrapper(ViewBag);
     var sessionWrapper = new SessionWrapper(Context.Session);
-    var controller = ViewContext.RouteData.Values["controller"].ToString();
-    var action = ViewContext.RouteData.Values["action"].ToString();
-    Func<string, string> translate = Translator.TranslateIt;
-    Func<string, string> translateFor = pn => translate($"{controller}.{pn}");
-    var title = translateFor(action);
-    var displayViewModel = viewBagWrapper.CreateDisplayViewModel(controller, Model);
 
-    ViewData["Title"] = title;
+    viewBagWrapper.Translate = Translator.TranslateIt;
+    viewBagWrapper.Controller = ViewContext.RouteData.Values["controller"].ToString();
+    viewBagWrapper.Action = ViewContext.RouteData.Values["action"].ToString();
+
     Model.ViewBagInfo = viewBagWrapper;
-
-    <h1>@title</h1>
+    ViewData["Title"] = viewBagWrapper.Title;
+    <h1>@ViewData["Title"]</h1>
 
     <div class="d-flex bg-transparent">
         <div class="p-sm-2 mr-auto">
-            <h4>@translate(controller)</h4>
+            <h4>@viewBagWrapper.TranslateFor("Delete")</h4>
         </div>
     </div>
     <hr />
@@ -37,9 +34,10 @@
     else
     {
         <div class="alert alert-danger" role="alert">
-            @translateFor("Should the entry be deleted?")
+            @viewBagWrapper.TranslateFor("Should the entry be deleted?")
         </div>
     }
+    var displayViewModel = viewBagWrapper.CreateDisplayViewModel(Model);
 
     <form asp-action="Delete">
         @foreach (var item in displayViewModel.HiddenProperties)
@@ -48,6 +46,6 @@
         }
         @await Html.PartialAsync("_DisplayModel", Model)
         <hr />
-        @await Html.PartialAsync("_SubmitBack", new SubmitBackCmd() { SubmitText = translateFor("Delete"), BackText = translateFor("Back to List"), SubmitCss = "btn btn-danger", FromSubmitToBack = true })
+        @await Html.PartialAsync("_SubmitBack", new SubmitBackCmd() { SubmitText = viewBagWrapper.TranslateFor("Delete"), BackText = viewBagWrapper.TranslateFor("Back to List"), SubmitCss = "btn btn-danger", FromSubmitToBack = true })
     </form>
 }
