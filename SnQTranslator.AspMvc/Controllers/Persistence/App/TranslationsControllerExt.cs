@@ -1,5 +1,6 @@
 ﻿using CommonBase.Extensions;
 using Microsoft.AspNetCore.Mvc;
+using SnQTranslator.AspMvc.Models.Modules.Common;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -49,8 +50,8 @@ namespace SnQTranslator.AspMvc.Controllers.Persistence.App
             var models = entities.OrderBy(e => e.Key)
                                  .Select(e => ToModel(e));
 
-            models = BeforeView(models, Action.Index);
-            models = await BeforeViewAsync(models, Action.Index).ConfigureAwait(false);
+            models = BeforeView(models, ActionMode.Index);
+            models = await BeforeViewAsync(models, ActionMode.Index).ConfigureAwait(false);
             return View("Index", models);
         }
         [ActionName("IndexByAppName")]

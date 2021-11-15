@@ -3,7 +3,6 @@
 using CommonBase.Extensions;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 
 namespace SnQTranslator.AspMvc.Models.Modules.View
@@ -28,27 +27,7 @@ namespace SnQTranslator.AspMvc.Models.Modules.View
             models.CheckArgument(nameof(models));
 
             Models = models;
-            Init();
         }
-        private void Init()
-        {
-            foreach (var item in ModelType.GetAllInterfacePropertyInfos())
-            {
-                if (item.CanRead && HiddenNames.Any(e => e.Equals(item.Name)))
-                {
-                    HiddenProperties.Add(item);
-                }
-                if (item.CanRead && DisplayNames.Any(e => e.Equals(item.Name)))
-                {
-                    DisplayProperties.Add(item);
-                }
-                else if (item.CanRead && DisplayNames.Count == 0 && IgnoreNames.Any(e => e.Equals(item.Name)) == false)
-                {
-                    DisplayProperties.Add(item);
-                }
-            }
-        }
-
         public virtual object GetValue(object model, PropertyInfo propertyInfo)
         {
             model.CheckArgument(nameof(model));

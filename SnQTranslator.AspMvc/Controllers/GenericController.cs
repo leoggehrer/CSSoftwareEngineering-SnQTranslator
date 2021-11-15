@@ -3,6 +3,7 @@
 using CommonBase.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using SnQTranslator.AspMvc.Models.Modules.Common;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,15 +15,6 @@ namespace SnQTranslator.AspMvc.Controllers
         where TContract : Contracts.IIdentifiable, Contracts.ICopyable<TContract>
         where TModel : TContract, new()
     {
-        protected enum Action
-        {
-            Index,
-            Create,
-            Edit,
-            Delete,
-            Details,
-        }
-
         static GenericController()
         {
             ClassConstructing();
@@ -41,13 +33,18 @@ namespace SnQTranslator.AspMvc.Controllers
 
         protected virtual Contracts.Client.IAdapterAccess<TContract> CreateController()
         {
+            return CreateController<TContract>();
+        }
+        protected virtual Contracts.Client.IAdapterAccess<T> CreateController<T>() 
+            where T : Contracts.IIdentifiable, Contracts.ICopyable<T>
+        {
             var handled = false;
-            var result = default(Contracts.Client.IAdapterAccess<TContract>);
+            var result = default(Contracts.Client.IAdapterAccess<T>);
 
             BeforeCreateController(ref result, ref handled);
             if (handled == false)
             {
-                result = Adapters.Factory.Create<TContract>();
+                result = Adapters.Factory.Create<T>();
 #if ACCOUNT_ON
                 result.SessionToken = SessionWrapper?.SessionToken;
 #endif
@@ -55,8 +52,8 @@ namespace SnQTranslator.AspMvc.Controllers
             AfterCreateController(result);
             return result;
         }
-        partial void BeforeCreateController(ref Contracts.Client.IAdapterAccess<TContract> controller, ref bool handled);
-        partial void AfterCreateController(Contracts.Client.IAdapterAccess<TContract> controller);
+        partial void BeforeCreateController<T>(ref Contracts.Client.IAdapterAccess<T> controller, ref bool handled);
+        partial void AfterCreateController<T>(Contracts.Client.IAdapterAccess<T> controller);
 
         protected bool FromCreateToEdit { get; set; } = false;
         protected bool FromEditToIndex { get; set; } = true;
@@ -71,10 +68,10 @@ namespace SnQTranslator.AspMvc.Controllers
             result.CopyProperties(entity);
             return result;
         }
-        protected virtual TModel BeforeView(TModel model, Action action) => model;
-        protected virtual IEnumerable<TModel> BeforeView(IEnumerable<TModel> models, Action action) => models;
-        protected virtual Task<TModel> BeforeViewAsync(TModel model, Action action) => Task.FromResult(model);
-        protected virtual Task<IEnumerable<TModel>> BeforeViewAsync(IEnumerable<TModel> models, Action action) => Task.FromResult(models);
+        protected virtual TModel BeforeView(TModel model, ActionMode action) => model;
+        protected virtual IEnumerable<TModel> BeforeView(IEnumerable<TModel> models, ActionMode action) => models;
+        protected virtual Task<TModel> BeforeViewAsync(TModel model, ActionMode action) => Task.FromResult(model);
+        protected virtual Task<IEnumerable<TModel>> BeforeViewAsync(IEnumerable<TModel> models, ActionMode action) => Task.FromResult(models);
 
         public override void OnActionExecuted(ActionExecutedContext context)
         {
@@ -118,8 +115,8 @@ namespace SnQTranslator.AspMvc.Controllers
                     var entities = await ctrl.GetAllAsync().ConfigureAwait(false);
 
                     models = entities.Select(e => ToModel(e));
-                    models = BeforeView(models, Action.Index);
-                    models = await BeforeViewAsync(models, Action.Index).ConfigureAwait(false);
+                    models = BeforeView(models, ActionMode.Index);
+                    models = await BeforeViewAsync(models, ActionMode.Index).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
@@ -156,8 +153,8 @@ namespace SnQTranslator.AspMvc.Controllers
             AfterCreate(model);
             if (HasError == false)
             {
-                model = BeforeView(model, Action.Create);
-                model = await BeforeViewAsync(model, Action.Edit).ConfigureAwait(false);
+                model = BeforeView(model, ActionMode.Create);
+                model = await BeforeViewAsync(model, ActionMode.Edit).ConfigureAwait(false);
             }
             return HasError ? RedirectToAction("Index") : ReturnCreateView(model);
         }
@@ -210,8 +207,8 @@ namespace SnQTranslator.AspMvc.Controllers
             AfterInsertModel(model);
             if (HasError == false)
             {
-                model = BeforeView(model, Action.Create);
-                model = await BeforeViewAsync(model, Action.Create).ConfigureAwait(false);
+                model = BeforeView(model, ActionMode.Create);
+                model = await BeforeViewAsync(model, ActionMode.Create).ConfigureAwait(false);
             }
             return ReturnAfterCreate(HasError, model);
         }
@@ -242,8 +239,8 @@ namespace SnQTranslator.AspMvc.Controllers
             AfterEdit(model);
             if (HasError == false)
             {
-                model = BeforeView(model, Action.Edit);
-                model = await BeforeViewAsync(model, Action.Edit).ConfigureAwait(false);
+                model = BeforeView(model, ActionMode.Edit);
+                model = await BeforeViewAsync(model, ActionMode.Edit).ConfigureAwait(false);
             }
             return HasError ? RedirectToAction("Index") : ReturnEditView(model);
         }
@@ -293,8 +290,8 @@ namespace SnQTranslator.AspMvc.Controllers
             AfterEdit(model);
             if (HasError == false)
             {
-                model = BeforeView(model, Action.Details);
-                model = await BeforeViewAsync(model, Action.Edit).ConfigureAwait(false);
+                model = BeforeView(model, ActionMode.Details);
+                model = await BeforeViewAsync(model, ActionMode.Edit).ConfigureAwait(false);
             }
             return HasError ? RedirectToAction("Index") : ReturnDetailsView(model);
         }
@@ -327,8 +324,8 @@ namespace SnQTranslator.AspMvc.Controllers
             AfterUpdateModel(model);
             if (HasError == false)
             {
-                model = BeforeView(model, Action.Edit);
-                model = await BeforeViewAsync(model, Action.Edit).ConfigureAwait(false);
+                model = BeforeView(model, ActionMode.Edit);
+                model = await BeforeViewAsync(model, ActionMode.Edit).ConfigureAwait(false);
             }
             return ReturnAfterEdit(HasError, model);
         }
@@ -362,8 +359,8 @@ namespace SnQTranslator.AspMvc.Controllers
             AfterDelete(model);
             if (HasError == false)
             {
-                model = BeforeView(model, Action.Delete);
-                model = await BeforeViewAsync(model, Action.Delete).ConfigureAwait(false);
+                model = BeforeView(model, ActionMode.Delete);
+                model = await BeforeViewAsync(model, ActionMode.Delete).ConfigureAwait(false);
             }
             return HasError ? RedirectToAction("Index") : ReturnDeleteView(model);
         }
