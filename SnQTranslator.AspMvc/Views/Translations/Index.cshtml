@@ -1,20 +1,27 @@
-﻿@using SnQTranslator.AspMvc.Modules.Handler
-@using SnQTranslator.AspMvc.Modules.Session
-@using SnQTranslator.AspMvc.Modules.Language
-@model IEnumerable<SnQTranslator.AspMvc.Models.Persistence.App.Translation>
+﻿@{
+    @using SnQTranslator.AspMvc.Models.Business.App
+    @using SnQTranslator.AspMvc.Modules.Handler
+    @using SnQTranslator.AspMvc.Modules.Session
+    @using SnQTranslator.AspMvc.Modules.Language
+    @using SnQTranslator.AspMvc.Modules.View
+    @model IEnumerable<SnQTranslator.AspMvc.Models.Persistence.App.Translation>
 
-@{
+    var viewBagWrapper = new ViewBagWrapper(ViewBag);
+    var sessionWrapper = new SessionWrapper(Context.Session);
+
+    viewBagWrapper.Translate = Translator.TranslateIt;
+    viewBagWrapper.Controller = ViewContext.RouteData.Values["controller"].ToString();
+    viewBagWrapper.Action = ViewContext.RouteData.Values["action"].ToString();
+    viewBagWrapper.ViewType = Model != null ? Model.GetType() : null;
+
     var all = string.Empty;
     var page = string.Empty;
     var activeHref = "/Translations/IndexByPage";
-    var sessionWrapper = new SessionWrapper(Context.Session);
-    var controller = ViewContext.RouteData.Values["controller"].ToString();
-    var action = ViewContext.RouteData.Values["action"].ToString();
-    Func<string, string> translate = Translator.TranslateIt;
-    Func<string, string> translateFor = pn => translate($"{controller}.{pn}");
-    var title = translateFor(controller);
+    var appItems = ViewData[nameof(AppItem)] as string[];
 
-    ViewData["Title"] = title;
+    ViewData["Title"] = viewBagWrapper.Title;
+    <h1>@viewBagWrapper.Title</h1>
+
     if (sessionWrapper.HasValue(nameof(page)))
     {
         page = sessionWrapper.GetStringValue(nameof(page), all);
@@ -27,13 +34,13 @@
 {
     <div class="d-flex bg-transparent">
         <div class="mr-auto p-sm-2">
-            <a asp-action="Create" class="btn btn-outline-secondary">@translateFor("Create New")</a>
+            <a asp-action="Create" class="btn btn-outline-secondary">@viewBagWrapper.TranslateFor("Create New")</a>
         </div>
         <div class="p-sm-2">
-            <a asp-action="Export" class="btn btn-outline-secondary">@translateFor("Export")</a>
+            <a asp-action="Export" class="btn btn-outline-secondary">@viewBagWrapper.TranslateFor("Export")</a>
         </div>
         <div class="p-sm-2">
-            <a asp-action="Import" class="btn btn-outline-primary">@translateFor("Import")</a>
+            <a asp-action="Import" class="btn btn-outline-primary">@viewBagWrapper.TranslateFor("Import")</a>
         </div>
     </div>
 }
@@ -47,13 +54,12 @@
 
 @{
     var appName = sessionWrapper.GetStringValue("appname");
-    var appNames = Model.GroupBy(m => m.AppName).Select(e => e.Key).OrderBy(e => e);
 
-    if (appNames.Any(e => e != null && e.Equals(appName)) == false)
+    if (appItems.Any(e => e != null && e.Equals(appName)) == false)
     {
         appName = null;
     }
-    var selectItems = new SelectList(appNames).ToList();
+    var selectItems = new SelectList(appItems).ToList();
 
     selectItems.ForEach(e =>
     {
@@ -69,14 +75,7 @@
     char chrStart = 'A', chrEnd = 'Z';
     <div class="d-flex justify-content-center">
         <div class="p-0" style="margin-right: 10px; min-width: 100px;">
-            @Html.DropDownList("AppNames",
-                                selectItems,
-                                null,
-                                new
-                                     {
-                                    @class = "form-control",
-                                    @onchange = "callByAppName(this.value)"
-                                })
+            @Html.DropDownList("AppNames", selectItems, null, new { @class = "form-control", @onchange = "callByAppName(this.value)" })
         </div>
         @for (char chrRun = chrStart; chrRun <= chrEnd; chrRun++)
         {
@@ -100,57 +99,16 @@
             <div class="p-0" style="margin-left: 10px;"><a class="page-link" href="@($"{activeHref}")">All</a></div>
         }
     </div>
+    <p></p>
+    @if (sessionWrapper.LoginSession != null)
+    {
+        @await Html.PartialAsync("_IndexList", Model)
+    }
+    else
+    {
+        @await Html.PartialAsync("_DisplayList", Model)
+    }
 }
-<p></p>
-
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.AppName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.KeyLanguage)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Key)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ValueLanguage)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Value)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model.Where(e => appName == null || (e.AppName != null && e.AppName.Equals(appName))))
-        {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.AppName)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.KeyLanguage)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Key)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.ValueLanguage)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Value)
-                </td>
-                <td>
-                    @Html.ActionLink("Edit", "Edit", new { id = item.Id }) |
-                    @Html.ActionLink("Delete", "Delete", new { id = item.Id })
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
 
 <script>
     function callByAppName(val) {

@@ -11,6 +11,68 @@ namespace SnQTranslator.AspMvc.Controllers.Persistence.App
 {
     public partial class TranslationsController
     {
+        public override Task<IActionResult> IndexAsync()
+        {
+            var page = SessionWrapper.GetStringValue("page", "A");
+
+            return Task.Run<IActionResult>(() => RedirectToAction("IndexByPage", new { appName = string.Empty, page }));
+        }
+
+        [ActionName("IndexByPage")]
+        public async Task<IActionResult> IndexByPageAsync(string appName, string page)
+        {
+            using var translationsCtrl = CreateController();
+            using var appItemsCtrl = CreateController<Contracts.Business.App.IAppItem>();
+            var entities = default(IEnumerable<Contracts.Persistence.App.ITranslation>);
+            var appItems = await appItemsCtrl.GetAllAsync().ConfigureAwait(false);
+            var predicate = string.Empty;
+
+            page = page?.ToLower();
+            ViewData[nameof(Models.Business.App.AppItem)] = new string[] { "" }.Union(appItems.Select(e => e.Name)).ToArray();
+            SessionWrapper.SetStringValue(nameof(page), page);
+
+            appName = appName != null && appName.Equals("*") ? String.Empty : appName;
+            if (string.IsNullOrEmpty(appName) == false)
+            {
+                predicate = $"AppName.Equals(\"{appName}\")";
+            }
+            if (string.IsNullOrEmpty(page) == false)
+            {
+                if (predicate.Length == 0)
+                {
+                    predicate = $"Key.ToLower().StartsWith(\"{page}\")";
+                }
+                else
+                {
+                    predicate = $"{predicate} && Key.ToLower().StartsWith(\"{page}\")";
+                }
+            }
+
+            if (string.IsNullOrEmpty(predicate))
+            {
+                entities = await translationsCtrl.GetAllAsync().ConfigureAwait(false);
+            }
+            else
+            {
+                entities = await translationsCtrl.QueryAllAsync(predicate).ConfigureAwait(false);
+            }
+            var models = entities.OrderBy(e => e.Key)
+                                 .Select(e => ToModel(e));
+
+            models = BeforeView(models, ActionMode.Index);
+            models = await BeforeViewAsync(models, ActionMode.Index).ConfigureAwait(false);
+            return View("Index", models);
+        }
+
+        [ActionName("IndexByAppName")]
+        public IActionResult IndexByAppName(string appName)
+        {
+            var page = SessionWrapper.GetStringValue("page");
+
+            SessionWrapper.SetStringValue("appname", appName);
+            return RedirectToAction("IndexByPage", new { appName, page });
+        }
+
         protected override async Task<Model> CreateModelAsync()
         {
             var appName = SessionWrapper.GetStringValue("appname");
@@ -21,46 +83,6 @@ namespace SnQTranslator.AspMvc.Controllers.Persistence.App
                 result.AppName = appName;
             }
             return result;
-        }
-
-        public override Task<IActionResult> IndexAsync()
-        {
-            var page = SessionWrapper.GetStringValue("page", "A");
-
-            return Task.Run<IActionResult>(() => RedirectToAction("IndexByPage", new { page }));
-        }
-
-        [ActionName("IndexByPage")]
-        public async Task<IActionResult> IndexByPageAsync(string page)
-        {
-            page = page?.ToLower();
-            SessionWrapper.SetStringValue(nameof(page), page);
-
-            using var ctrl = CreateController();
-            var entities = default(IEnumerable<Contracts.Persistence.App.ITranslation>);
-
-            if (string.IsNullOrEmpty(page))
-            {
-                entities = await ctrl.GetAllAsync().ConfigureAwait(false);
-            }
-            else
-            {
-                entities = await ctrl.QueryAllAsync($"Key.ToLower().StartsWith(\"{page}\")").ConfigureAwait(false);
-            }
-            var models = entities.OrderBy(e => e.Key)
-                                 .Select(e => ToModel(e));
-
-            models = BeforeView(models, ActionMode.Index);
-            models = await BeforeViewAsync(models, ActionMode.Index).ConfigureAwait(false);
-            return View("Index", models);
-        }
-        [ActionName("IndexByAppName")]
-        public IActionResult IndexByAppName(string appName)
-        {
-            var page = SessionWrapper.GetStringValue("page");
-
-            SessionWrapper.SetStringValue("appname", appName);
-            return RedirectToAction("IndexByPage", new { page });
         }
 
         #region Export and Import
