@@ -1,6 +1,5 @@
 ﻿//@CodeCopy
 //MdStart
-using CommonBase.Extensions;
 using System;
 
 namespace SnQTranslator.Logic.Entities

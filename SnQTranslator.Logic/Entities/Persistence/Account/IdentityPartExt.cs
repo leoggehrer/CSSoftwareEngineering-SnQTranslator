@@ -1,7 +1,6 @@
 ﻿//@CodeCopy
 //MdStart
 #if ACCOUNT_ON
-using CommonBase;
 
 namespace SnQTranslator.Logic.Entities.Persistence.Account
 {

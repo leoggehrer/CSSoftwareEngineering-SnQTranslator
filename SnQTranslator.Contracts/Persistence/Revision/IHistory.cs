@@ -1,7 +1,6 @@
 ﻿//@CodeCopy
 //MdStart
 #if REVISION_ON
-using CommonBase.Attributes;
 using System;
 
 namespace SnQTranslator.Contracts.Persistence.Revision

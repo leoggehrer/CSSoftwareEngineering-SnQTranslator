@@ -40,7 +40,7 @@ namespace SnQTranslator.Logic
 #endif
         static partial void CreateController<C>(ref IControllerAccess<C> controller)
             where C : SnQTranslator.Contracts.IIdentifiable;
-        static partial void CreateController<C>(object controllerObject, ref IControllerAccess<C> controller)
+        static partial void CreateController<C>(object sharedController, ref IControllerAccess<C> controller)
             where C : SnQTranslator.Contracts.IIdentifiable;
     }
 }

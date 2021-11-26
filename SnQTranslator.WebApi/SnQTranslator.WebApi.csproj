@@ -1,23 +1,27 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
-  <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+	</PropertyGroup>
 
-  <PropertyGroup>
-    <DefineConstants>ACCOUNT_ON;LOGGING_OFF;REVISION_OFF</DefineConstants>
-    <UserSecretsId>166e8bdd-9812-4eb6-a2c5-0a0a6b5c85cf</UserSecretsId>
-    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-  </PropertyGroup>
+	<PropertyGroup>
+		<DefineConstants>ACCOUNT_ON;LOGGING_OFF;REVISION_OFF</DefineConstants>
+		<UserSecretsId>166e8bdd-9812-4eb6-a2c5-0a0a6b5c85cf</UserSecretsId>
+		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.11.1" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.2" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.11.1" />
+		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.2" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\SnQTranslator.Logic\SnQTranslator.Logic.csproj" />
-    <ProjectReference Include="..\SnQTranslator.Transfer\SnQTranslator.Transfer.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\SnQTranslator.Logic\SnQTranslator.Logic.csproj" />
+		<ProjectReference Include="..\SnQTranslator.Transfer\SnQTranslator.Transfer.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Using Include="CommonBase.Extensions" />
+	</ItemGroup>
 
 </Project>

@@ -1,7 +1,6 @@
 ﻿//@CodeCopy
 //MdStart
 #if ACCOUNT_ON
-using CommonBase.Extensions;
 using Microsoft.EntityFrameworkCore;
 using SnQTranslator.Logic.Entities.Persistence.Account;
 using SnQTranslator.Logic.Modules.Account;

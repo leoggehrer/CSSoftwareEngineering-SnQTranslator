@@ -1,0 +1,74 @@
+﻿@*@CodeCopy*@
+@{
+    @using SnQTranslator.AspMvc.Models.Modules.Common;
+    @using SnQTranslator.AspMvc.Models.Modules.View
+    @using SnQTranslator.AspMvc.Modules.Handler
+    @using SnQTranslator.AspMvc.Modules.Language
+    @using SnQTranslator.AspMvc.Modules.Session
+    @using SnQTranslator.AspMvc.Modules.View
+    @model IEnumerable<SnQTranslator.AspMvc.Models.IdentityModel>
+
+    var viewBagWrapper = new ViewBagWrapper(ViewBag);
+    var sessionWrapper = new SessionWrapper(Context.Session);
+
+    viewBagWrapper.Translate = Translator.TranslateIt;
+    viewBagWrapper.Controller = ViewContext.RouteData.Values["controller"].ToString();
+    viewBagWrapper.Action = ViewContext.RouteData.Values["action"].ToString();
+
+    var indexViewModel = default(IndexViewModel);
+
+    if (Model is IEnumerable<IMasterDetails> mds)
+    {
+        var models = mds.Select(m => m.Master);
+
+        if (models.Any())
+        {
+            indexViewModel = viewBagWrapper.CreateIndexViewModel(models);
+        }
+        viewBagWrapper.ModelType = ModelType.MasterDetail;
+        viewBagWrapper.CommandMode |= SnQTranslator.AspMvc.Models.Modules.Common.CommandMode.CreateDetail;
+    }
+    else
+    {
+        viewBagWrapper.ModelType = ModelType.Single;
+        indexViewModel = viewBagWrapper.CreateIndexViewModel(Model);
+    }
+
+    if (indexViewModel != null)
+    {
+        @foreach (var model in indexViewModel.Models)
+        {
+            model.ViewBagInfo = viewBagWrapper;
+            <div class="card" style="margin-bottom: 0.5em;">
+                <ul class="list-group list-group-flush">
+                    @foreach (var item in indexViewModel.GetDisplayProperties())
+                    {
+                        <li class="list-group-item"><strong>@viewBagWrapper.TranslateFor(indexViewModel.GetLabel(item))</strong><p>@indexViewModel.GetDisplayValue(model, item)</p></li>
+                    }
+                </ul>
+@*#if ACCOUNT_ON*@
+                @{
+                    @if (sessionWrapper.LoginSession != null)
+                    {
+                        <div class="card-body">
+                            @await Html.PartialAsync("_CommandControl", model)
+                        </div>
+                    }
+                    else
+                    {
+                        @await Html.PartialAsync("_CardBody", model)
+                    }
+                }
+@*#endif*@
+
+@*#if ACCOUNT_OFF*@
+@*
+@{
+                    @await Html.PartialAsync("_CardBody", Model)
+}
+*@
+@*#endif*@
+            </div>
+        }
+    }
+}

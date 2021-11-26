@@ -1,6 +1,5 @@
 ﻿//@CodeCopy
 //MdStart
-using CommonBase.Extensions;
 using SnQTranslator.Adapters.Exceptions;
 using System;
 using System.Collections.Generic;

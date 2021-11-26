@@ -100,14 +100,7 @@
         }
     </div>
     <p></p>
-    @if (sessionWrapper.LoginSession != null)
-    {
-        @await Html.PartialAsync("_IndexList", Model)
-    }
-    else
-    {
-        @await Html.PartialAsync("_DisplayList", Model)
-    }
+    @await Html.PartialAsync("_CardList", Model)
 }
 
 <script>

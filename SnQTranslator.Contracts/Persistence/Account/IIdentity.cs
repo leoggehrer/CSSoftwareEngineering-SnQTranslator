@@ -1,7 +1,6 @@
 ﻿//@CodeCopy
 //MdStart
 #if ACCOUNT_ON
-using CommonBase.Attributes;
 using SnQTranslator.Contracts.Modules.Common;
 
 namespace SnQTranslator.Contracts.Persistence.Account

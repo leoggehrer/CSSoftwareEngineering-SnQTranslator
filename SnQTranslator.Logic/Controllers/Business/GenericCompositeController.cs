@@ -1,6 +1,5 @@
 ﻿//@CodeCopy
 //MdStart
-using CommonBase.Extensions;
 using SnQTranslator.Logic.Modules.Exception;
 using System;
 using System.Collections.Generic;
@@ -79,7 +78,7 @@ namespace SnQTranslator.Logic.Controllers.Business
 
                 if (value != null)
                 {
-                    var child = await OneEntityController.GetByIdAsync((int)Convert.ChangeType(value, piOneFK.PropertyType)).ConfigureAwait(false);
+                    var child = await OneEntityController.GetEntityByIdAsync((int)Convert.ChangeType(value, piOneFK.PropertyType)).ConfigureAwait(false);
 
                     if (child != null)
                     {
@@ -93,7 +92,7 @@ namespace SnQTranslator.Logic.Controllers.Business
 
                 if (value != null)
                 {
-                    var child = await AnotherEntityController.GetByIdAsync((int)Convert.ChangeType(value, piAnotherFK.PropertyType)).ConfigureAwait(false);
+                    var child = await AnotherEntityController.GetEntityByIdAsync((int)Convert.ChangeType(value, piAnotherFK.PropertyType)).ConfigureAwait(false);
 
                     if (child != null)
                     {
@@ -106,11 +105,11 @@ namespace SnQTranslator.Logic.Controllers.Business
         #region Count
         internal override Task<int> ExecuteCountAsync()
         {
-            return OneEntityController.CountAsync();
+            return OneEntityController.ExecuteCountAsync();
         }
         internal override Task<int> ExecuteCountByAsync(string predicate)
         {
-            return OneEntityController.CountByAsync(predicate);
+            return OneEntityController.ExecuteCountByAsync(predicate);
         }
         #endregion Count
 
@@ -118,7 +117,7 @@ namespace SnQTranslator.Logic.Controllers.Business
         internal override async Task<E> ExecuteGetEntityByIdAsync(int id)
         {
             E result;
-            var entity = await ConnectorEntityController.GetByIdAsync(id).ConfigureAwait(false);
+            var entity = await ConnectorEntityController.GetEntityByIdAsync(id).ConfigureAwait(false);
 
             if (entity != null)
             {
@@ -135,7 +134,7 @@ namespace SnQTranslator.Logic.Controllers.Business
         internal override async Task<IEnumerable<E>> ExecuteGetEntityAllAsync()
         {
             var result = new List<E>();
-            var query = await ConnectorEntityController.GetAllAsync().ConfigureAwait(false);
+            var query = await ConnectorEntityController.GetEntityAllAsync().ConfigureAwait(false);
 
             foreach (var item in query)
             {
@@ -151,7 +150,7 @@ namespace SnQTranslator.Logic.Controllers.Business
         internal override async Task<IEnumerable<E>> ExecuteQueryEntityAllAsync(string predicate)
         {
             var result = new List<E>();
-            var query = await ConnectorEntityController.QueryAllAsync(predicate).ConfigureAwait(false);
+            var query = await ConnectorEntityController.QueryEntityAllAsync(predicate).ConfigureAwait(false);
 
             foreach (var item in query)
             {
@@ -268,7 +267,7 @@ namespace SnQTranslator.Logic.Controllers.Business
         #region Delete
         internal override async Task ExecuteDeleteEntityAsync(E entity)
         {
-            await ConnectorEntityController.DeleteAsync(entity.Id).ConfigureAwait(false);
+            await ConnectorEntityController.DeleteEntityAsync(entity.ConnectorEntity).ConfigureAwait(false);
         }
         #endregion Delete
     }

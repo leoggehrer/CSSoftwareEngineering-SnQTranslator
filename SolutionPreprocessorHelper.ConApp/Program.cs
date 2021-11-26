@@ -1,6 +1,5 @@
 ﻿//@CodeCopy
 //MdStart
-using CommonBase.Extensions;
 using CSharpCodeGenerator.Logic;
 using System;
 using System.Collections.Generic;
@@ -62,8 +61,8 @@ namespace SolutionPreprocessorHelper.ConApp
                     {
                         var message = $"{line} in line {idx} of the {file} file";
 
-                        Console.WriteLine(message);
-                        Debug.WriteLine(message);
+                        //Console.WriteLine(message);
+                        //Debug.WriteLine(message);
                     }
                     idx++;
                 }
@@ -130,9 +129,11 @@ namespace SolutionPreprocessorHelper.ConApp
                 if (analyzeDirective.EndsWith("_OFF", StringComparison.CurrentCultureIgnoreCase))
                 {
                     SetPreprocessorDirectivesCommentsInRazorFiles(directive.Replace("_OFF", "_ON"));
+                    RemovePreprocessorDirectivesCommentsInRazorFiles(directive);
                 }
-                else if (analyzeDirective.EndsWith("_ON"))
+                else if (analyzeDirective.EndsWith("_ON", StringComparison.CurrentCultureIgnoreCase))
                 {
+                    SetPreprocessorDirectivesCommentsInRazorFiles(directive.Replace("_ON", "_OFF"));
                     RemovePreprocessorDirectivesCommentsInRazorFiles(directive);
                 }
             }

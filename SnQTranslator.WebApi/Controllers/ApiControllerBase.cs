@@ -1,6 +1,5 @@
 ﻿//@CodeCopy
 //MdStart
-using CommonBase.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using SnQTranslator.Contracts;
 using System;

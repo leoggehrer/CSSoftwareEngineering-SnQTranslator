@@ -1,6 +1,5 @@
 ﻿//@CodeCopy
 //MdStart
-using CommonBase.Extensions;
 using SnQTranslator.Logic.Modules.Exception;
 using System.Collections.Generic;
 using System.Linq;
@@ -83,7 +82,7 @@ namespace SnQTranslator.Logic.Controllers.Business
         {
             var result = new List<TAnotherEntity>();
             var predicate = $"{typeof(TOneEntity).Name}Id == {masterId}";
-            var query = await AnotherEntityController.QueryAllAsync(predicate).ConfigureAwait(false);
+            var query = await AnotherEntityController.QueryEntityAllAsync(predicate).ConfigureAwait(false);
 
             foreach (var item in query)
             {
@@ -98,11 +97,11 @@ namespace SnQTranslator.Logic.Controllers.Business
         #region Count
         internal override Task<int> ExecuteCountAsync()
         {
-            return OneEntityController.CountAsync();
+            return OneEntityController.ExecuteCountAsync();
         }
         internal override Task<int> ExecuteCountByAsync(string predicate)
         {
-            return OneEntityController.CountByAsync(predicate);
+            return OneEntityController.ExecuteCountByAsync(predicate);
         }
         #endregion Count
 
@@ -129,7 +128,23 @@ namespace SnQTranslator.Logic.Controllers.Business
         internal override async Task<IEnumerable<E>> ExecuteGetEntityAllAsync()
         {
             var result = new List<E>();
-            var query = await OneEntityController.GetAllAsync().ConfigureAwait(false);
+            var query = await OneEntityController.ExecuteGetEntityAllAsync().ConfigureAwait(false);
+
+            foreach (var item in query)
+            {
+                var entity = new E();
+
+                entity.OneItem.CopyProperties(item);
+                await LoadAnotherAsync(entity, item.Id).ConfigureAwait(false);
+
+                result.Add(entity);
+            }
+            return result;
+        }
+        internal override async Task<IEnumerable<E>> ExecuteGetEntityPageListAsync(int pageIndex, int pageSize)
+        {
+            var result = new List<E>();
+            var query = await OneEntityController.ExecuteGetEntityPageListAsync(pageIndex, pageSize).ConfigureAwait(false);
 
             foreach (var item in query)
             {
@@ -145,7 +160,23 @@ namespace SnQTranslator.Logic.Controllers.Business
         internal override async Task<IEnumerable<E>> ExecuteQueryEntityAllAsync(string predicate)
         {
             var result = new List<E>();
-            var query = await OneEntityController.QueryAllAsync(predicate).ConfigureAwait(false);
+            var query = await OneEntityController.ExecuteQueryEntityAllAsync(predicate).ConfigureAwait(false);
+
+            foreach (var item in query)
+            {
+                var entity = new E();
+
+                entity.OneItem.CopyProperties(item);
+                await LoadAnotherAsync(entity, item.Id).ConfigureAwait(false);
+
+                result.Add(entity);
+            }
+            return result;
+        }
+        internal override async Task<IEnumerable<E>> ExecuteQueryEntityPageListAsync(string predicate, int pageIndex, int pageSize)
+        {
+            var result = new List<E>();
+            var query = await OneEntityController.ExecuteQueryEntityPageListAsync(predicate, pageIndex, pageSize).ConfigureAwait(false);
 
             foreach (var item in query)
             {
@@ -212,9 +243,9 @@ namespace SnQTranslator.Logic.Controllers.Business
         {
             if (entity.AnotherEntity.Id > 0)
             {
-                await AnotherEntityController.DeleteAsync(entity.AnotherEntity.Id).ConfigureAwait(false);
+                await AnotherEntityController.DeleteEntityAsync(entity.AnotherEntity).ConfigureAwait(false);
             }
-            await OneEntityController.DeleteAsync(entity.Id).ConfigureAwait(false);
+            await OneEntityController.DeleteEntityAsync(entity.OneEntity).ConfigureAwait(false);
             return entity;
         }
         #endregion Delete
