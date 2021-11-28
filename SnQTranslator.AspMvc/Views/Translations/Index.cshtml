@@ -1,4 +1,5 @@
 ﻿@{
+    @using SnQTranslator.AspMvc.Models.Modules.Common
     @using SnQTranslator.AspMvc.Models.Business.App
     @using SnQTranslator.AspMvc.Modules.Handler
     @using SnQTranslator.AspMvc.Modules.Session
@@ -20,7 +21,17 @@
     var appItems = ViewData[nameof(AppItem)] as string[];
 
     ViewData["Title"] = viewBagWrapper.Title;
-    <h1>@viewBagWrapper.Title</h1>
+    <div class="row">
+        <div class="col-md-12 d-flex">
+            <h2 id="quote">@viewBagWrapper.Title</h2>
+            @if ((viewBagWrapper.CommandMode & SnQTranslator.AspMvc.Models.Modules.Common.CommandMode.Create) > 0)
+            {
+                <div class="ml-auto">
+                    <a asp-action="@nameof(CommandMode.Create)" class="btn btn-outline-dark" title="@viewBagWrapper.TranslateFor("Create new...")"><i class="fa fa-plus" aria-hidden="true"></i></a>
+                </div>
+            }
+        </div>
+    </div>
 
     if (sessionWrapper.HasValue(nameof(page)))
     {
@@ -28,13 +39,11 @@
     }
 }
 
-<h1>Index</h1>
-
 @if (string.IsNullOrEmpty(sessionWrapper.SessionToken) == false)
 {
+    <hr />
     <div class="d-flex bg-transparent">
         <div class="mr-auto p-sm-2">
-            <a asp-action="Create" class="btn btn-outline-secondary">@viewBagWrapper.TranslateFor("Create New")</a>
         </div>
         <div class="p-sm-2">
             <a asp-action="Export" class="btn btn-outline-secondary">@viewBagWrapper.TranslateFor("Export")</a>
@@ -80,23 +89,28 @@
         @for (char chrRun = chrStart; chrRun <= chrEnd; chrRun++)
         {
             var strRun = Char.ToString(chrRun);
+            var action = Url.Action("IndexByPage", viewBagWrapper.Controller, new { appName, page = strRun });
 
             if (chrRun.ToString().Equals(page, StringComparison.CurrentCultureIgnoreCase))
             {
-                <div class="p-sm-0"><a class="page-link" style="background-color: lightgray;" href="@($"{activeHref}?page={strRun}")">@strRun</a></div>
+                <div class="p-sm-0"><a class="page-link" style="background-color: lightgray;" href="@action">@strRun</a></div>
             }
             else
             {
-                <div class="p-sm-0"><a class="page-link" href="@($"{activeHref}?page={strRun}")">@strRun</a></div>
+                <div class="p-sm-0"><a class="page-link" href="@action">@strRun</a></div>
             }
         }
         @if (string.IsNullOrEmpty(page) || page.Equals(all, StringComparison.CurrentCultureIgnoreCase))
         {
-            <div class="p-0" style="margin-left: 10px;"><a class="page-link" style="background-color: lightgray;" href="@($"{activeHref}?page={all}")">All</a></div>
+            var action = Url.Action("IndexByPage", viewBagWrapper.Controller, new { appName, page = all });
+
+            <div class="p-0" style="margin-left: 10px;"><a class="page-link" style="background-color: lightgray;" href="@action">All</a></div>
         }
         else
         {
-            <div class="p-0" style="margin-left: 10px;"><a class="page-link" href="@($"{activeHref}")">All</a></div>
+            var action = Url.Action("IndexByPage", viewBagWrapper.Controller, new { appName, page = string.Empty });
+
+            <div class="p-0" style="margin-left: 10px;"><a class="page-link" href="@action">All</a></div>
         }
     </div>
     <p></p>
