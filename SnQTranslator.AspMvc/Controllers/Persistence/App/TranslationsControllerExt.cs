@@ -14,8 +14,9 @@ namespace SnQTranslator.AspMvc.Controllers.Persistence.App
         public override Task<IActionResult> IndexAsync()
         {
             var page = SessionWrapper.GetStringValue("page", "A");
+            var appName = SessionWrapper.GetStringValue("appname");
 
-            return Task.Run<IActionResult>(() => RedirectToAction("IndexByPage", new { appName = string.Empty, page }));
+            return Task.Run<IActionResult>(() => RedirectToAction("IndexByPage", new { appName, page }));
         }
 
         [ActionName("IndexByPage")]
@@ -61,7 +62,7 @@ namespace SnQTranslator.AspMvc.Controllers.Persistence.App
 
             models = BeforeView(models, ActionMode.Index);
             models = await BeforeViewAsync(models, ActionMode.Index).ConfigureAwait(false);
-            return View("Index", models);
+            return ReturnIndexView(models);
         }
 
         [ActionName("IndexByAppName")]

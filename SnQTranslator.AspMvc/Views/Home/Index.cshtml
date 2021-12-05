@@ -1,7 +1,7 @@
 ﻿@*@CodeCopy*@
 @{
     @using CommonBase.Extensions
-    @using SnQTranslator.AspMvc.Modules.StaticPage
+    @using SnQTranslator.AspMvc.Modules.ThirdPartyServices
     @using SnQTranslator.AspMvc.Modules.Language
 
     var controller = ViewContext.RouteData.Values["controller"].ToString();
@@ -22,7 +22,7 @@
 }
 else
 {
-    var imgSrc = StaticPageService.GetPartialContent($"{pageKey}.img.src", "/img/informatik_ai.jpg");
+    var imgSrc = StaticPageService.GetHtmlAttribute($"{pageKey}.img.src", "/img/informatik_ai.jpg");
 
     <div class="card" style="margin-bottom: 1em; border: none;">
         @if (imgSrc.HasContent())

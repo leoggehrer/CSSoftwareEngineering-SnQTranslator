@@ -5,6 +5,7 @@ using System;
 using System.Threading.Tasks;
 using SnQTranslator.AspMvc.Extensions;
 using System.Linq;
+using SnQTranslator.AspMvc.Models.Modules.View;
 
 namespace SnQTranslator.AspMvc.Modules.Session
 {
@@ -103,7 +104,7 @@ namespace SnQTranslator.AspMvc.Modules.Session
         }
         #endregion Properties
 
-        #region Page-Properties
+        #region Filter
         public void SetSearchFilter(string controllerName, string value)
         {
             SetStringValue($"{StaticLiterals.SearchFilterKeyPrefix}{controllerName}", value);
@@ -120,7 +121,25 @@ namespace SnQTranslator.AspMvc.Modules.Session
         {
             return GetStringValue($"{StaticLiterals.FilterPredicateKeyPrefix}{controllerName}");
         }
+        public void SetFilterModel(string controllerName, FilterModel filterModel)
+        {
+            Session.Set<FilterModel>($"{StaticLiterals.FilterModelKey}{controllerName}", filterModel);
+        }
+        public FilterModel GetFilterModel(string controllerName)
+        {
+            return Session.Get<FilterModel>($"{StaticLiterals.FilterModelKey}{controllerName}");
+        }
+        public void SetFilterValues(string controllerName, FilterValues filterValues)
+        {
+            Session.Set<FilterValues>($"{StaticLiterals.FilterValuesKey}{controllerName}", filterValues);
+        }
+        public FilterValues GetFilterValues(string controllerName)
+        {
+            return Session.Get<FilterValues>($"{StaticLiterals.FilterValuesKey}{controllerName}");
+        }
+        #endregion Filter
 
+        #region Page-Properties
         public void SetPageCount(string controllerName, int value)
         {
             SetIntValue($"{StaticLiterals.PageCountKeyPrefix}{controllerName}", value);
@@ -136,9 +155,7 @@ namespace SnQTranslator.AspMvc.Modules.Session
         }
         public int[] GetPageSizes(string controllerName)
         {
-            var result = GetValue($"{StaticLiterals.PageSizesKeyPrefix}{controllerName}") as int[];
-
-            return result == null ? StaticLiterals.DefaultPageSizes : result;
+            return GetValue($"{StaticLiterals.PageSizesKeyPrefix}{controllerName}") is not int[] result ? StaticLiterals.DefaultPageSizes : result;
         }
 
         public void SetPageSize(string controllerName, int value)

@@ -1,8 +1,9 @@
 ﻿//@CodeCopy
 //MdStart
 
+using CommonBase.Extensions;
+using SnQTranslator.AspMvc.Models;
 using SnQTranslator.AspMvc.Models.Modules.Common;
-using SnQTranslator.AspMvc.Models.Modules.View;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -17,19 +18,29 @@ namespace SnQTranslator.AspMvc.Modules.View
             ViewBag = viewBag;
         }
 
-        public ModelType ModelType
+        public bool HasPager
+        {
+            get => ViewBag.HasPager != null ? (bool)ViewBag.HasPager : true;
+            set => ViewBag.HasPager = value;
+        }
+        public bool HasFilter
+        {
+            get => ViewBag.HasFilter != null ? (bool)ViewBag.HasFilter : true;
+            set => ViewBag.HasFilter = value;
+        }
+        public ModelCategory ModelCategory
         {
             get
             {
-                var result = ModelType.Single;
+                var result = ModelCategory.Single;
 
-                if (ViewBag.ModelType != null)
+                if (ViewBag.ModelCategory != null)
                 {
-                    result = ViewBag.ModelType;
+                    result = ViewBag.ModelCategory;
                 }
                 return result;
             }
-            set => ViewBag.ModelType = value;
+            set => ViewBag.ModelCategory = value;
         }
         public EditMode EditMode
         {
@@ -49,7 +60,7 @@ namespace SnQTranslator.AspMvc.Modules.View
         {
             get
             {
-                var result = CommandMode.Create | CommandMode.Edit | CommandMode.Delete | CommandMode.Details | CommandMode.CreateDetail | CommandMode.EditDetail | CommandMode.DeleteDetail;
+                var result = CommandMode.All;
 
                 if (ViewBag.CommandMode != null)
                 {
@@ -76,23 +87,16 @@ namespace SnQTranslator.AspMvc.Modules.View
             get => ViewBag.Action as string;
             set => ViewBag.Action = value;
         }
-        public Type ViewType
-        {
-            get => ViewBag.ViewType as Type;
-            set => ViewBag.ViewType = value;
-        }
         public string ItemPrefix
         {
             get => ViewBag.ItemPrefix as string;
             set => ViewBag.ItemPrefix = value;
         }
-        public string ViewTypeName => ViewType?.FullName;
-        public ViewModelCreator ViewModelCreator
+        public int Index
         {
-            get => ViewBag.ViewModelCreator as ViewModelCreator;
-            set => ViewBag.ViewModelCreator = value;
+            get => ViewBag.Index != null ? (int)ViewBag.Index : 0;
+            set => ViewBag.Index = value;
         }
-
         public bool Handled
         {
             get => ViewBag.Handled != null ? (bool)ViewBag.Handled : false;
@@ -205,43 +209,31 @@ namespace SnQTranslator.AspMvc.Modules.View
         }
         public Func<string, string> TranslateFor => text => Translate($"{Controller}.{text}");
 
-        public IndexViewModel CreateIndexViewModel(IEnumerable<Models.IdentityModel> models)
+        public static Type GetDisplayType(Type modelType)
         {
-            return CreateIndexViewModel(ViewTypeName, models);
-        }
-        public IndexViewModel CreateIndexViewModel(IEnumerable<Models.IdentityModel> models, Type elementType)
-        {
-            return CreateIndexViewModel(ViewTypeName, models, elementType);
-        }
-        public IndexViewModel CreateIndexViewModel(string viewTypeName, IEnumerable<Models.IdentityModel> models)
-        {
-            return ViewModelCreator != null ? ViewModelCreator.CreateIndexViewModel(viewTypeName, models, this) 
-                                            : new ViewModelCreator().CreateIndexViewModel(viewTypeName, models, this);
-        }
-        public IndexViewModel CreateIndexViewModel(string viewTypeName, IEnumerable<Models.IdentityModel> models, Type elementType)
-        {
-            return ViewModelCreator != null ? ViewModelCreator.CreateIndexViewModel(viewTypeName, models, elementType, this)
-                                            : new ViewModelCreator().CreateIndexViewModel(viewTypeName, models, elementType, this);
-        }
+            modelType.CheckArgument(nameof(modelType));
 
-        public EditViewModel CreateEditViewModel(Models.IdentityModel model)
-        {
-            return CreateEditViewModel(ViewTypeName, model);
-        }
-        public EditViewModel CreateEditViewModel(string viewTypeName, Models.IdentityModel model)
-        {
-            return ViewModelCreator != null ? ViewModelCreator.CreateEditViewModel(viewTypeName, model, this)
-                                            : new ViewModelCreator().CreateEditViewModel(viewTypeName, model, this);
-        }
+            var result = modelType;
 
-        public DisplayViewModel CreateDisplayViewModel(Models.IdentityModel model)
-        {
-            return CreateDisplayViewModel(ViewTypeName, model);
-        }
-        public DisplayViewModel CreateDisplayViewModel(string viewTypeName, Models.IdentityModel model)
-        {
-            return ViewModelCreator != null ? ViewModelCreator.CreateDisplayViewModel(viewTypeName, model, this)
-                                            : new ViewModelCreator().CreateDisplayViewModel(viewTypeName, model, this);
+            if (modelType.IsGenericTypeOf(typeof(OneToManyModel<,,,>)))
+            {
+                var genericTypes = modelType.BaseType.GetGenericArguments();
+
+                if (genericTypes.Length > 1)
+                {
+                    result = genericTypes[1];
+                }
+            }
+            else if (modelType.IsGenericTypeOf(typeof(OneToAnotherModel<,,,>)))
+            {
+                var genericTypes = modelType.BaseType.GetGenericArguments();
+
+                if (genericTypes.Length > 1)
+                {
+                    result = genericTypes[1];
+                }
+            }
+            return result;
         }
     }
 }

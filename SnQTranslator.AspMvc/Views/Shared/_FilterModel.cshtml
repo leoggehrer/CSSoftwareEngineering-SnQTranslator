@@ -1,0 +1,25 @@
+﻿@*@CodeCopy*@
+@{
+    @using SnQTranslator.AspMvc.Models.Modules.View
+    @using System.Reflection
+    @model FilterModel
+
+    var index = 0;
+    var viewBagInfo = Model.ViewBagInfo;
+    var sessionInfo = Model.SessionInfo;
+    var indexViewModel = Model.IndexViewModel;
+    var filterValues = sessionInfo.GetFilterValues(viewBagInfo.Controller);
+    var properties = indexViewModel.GetDisplayProperties();
+
+    @foreach (var property in properties)
+    {
+        if (property.CanRead)
+        {
+            Model.ViewBagInfo.Index = index++;
+            Model.ViewBagInfo.Handled = false;
+            Model.ViewBagInfo.DisplayProperty = property;
+            @await Html.PartialAsync("_FilterGroup", Model)
+        }
+    }
+}
+

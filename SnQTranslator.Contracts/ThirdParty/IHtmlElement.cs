@@ -1,11 +1,10 @@
 ﻿//@CodeCopy
 //MdStart
-
 using SnQTranslator.Contracts.Modules.Common;
 
 namespace SnQTranslator.Contracts.ThirdParty
 {
-    public partial interface IHtmlItem : IVersionable, ICopyable<IHtmlItem>
+    public partial interface IHtmlElement : IVersionable, ICopyable<IHtmlElement>
     {
         string AppName { get; set; }
         string Key { get; set; }

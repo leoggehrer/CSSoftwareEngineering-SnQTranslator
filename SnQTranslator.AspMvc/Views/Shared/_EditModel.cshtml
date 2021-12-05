@@ -1,9 +1,11 @@
 ﻿@*@CodeCopy*@
 @{
+    @using SnQTranslator.AspMvc.Modules.View
     @model SnQTranslator.AspMvc.Models.IdentityModel
 
-    var viewBagWrapper = Model.ViewBagInfo;
-    var editViewModel = viewBagWrapper.CreateEditViewModel(Model);
+    var index = 0;
+    var viewBagInfo = Model.ViewBagInfo;
+    var editViewModel = ViewModelCreator.CreateEditViewModel(viewBagInfo, Model);
 
     @foreach (var property in editViewModel.GetHiddenProperties())
     {
@@ -12,6 +14,7 @@
 
     @foreach (var item in editViewModel.GetDisplayProperties())
     {
+        Model.ViewBagInfo.Index = index++;
         Model.ViewBagInfo.Handled = false;
         Model.ViewBagInfo.DisplayProperty = item;
         @await Html.PartialAsync("_EditGroup", Model)

@@ -1,0 +1,18 @@
+﻿@*@CodeCopy*@
+@{
+    @using SnQTranslator.AspMvc.Models.Modules.View
+    @using SnQTranslator.AspMvc.Modules.Language
+    @using SnQTranslator.AspMvc.Modules.Session
+    @using SnQTranslator.AspMvc.Modules.View
+    @model IndexViewModel
+
+    var viewBagInfo = Model?.ViewBagInfo;
+    var sessionInfo = new SessionWrapper(Context.Session);
+    var filterModel = new FilterModel(sessionInfo, Model);
+        
+    <form asp-action="Filter" method="post">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        @await Html.PartialAsync("_FilterModel", filterModel)
+        @await Html.PartialAsync("_Submit", new SubmitCmd() { SubmitText = viewBagInfo.TranslateFor("Apply") })
+    </form>
+}
