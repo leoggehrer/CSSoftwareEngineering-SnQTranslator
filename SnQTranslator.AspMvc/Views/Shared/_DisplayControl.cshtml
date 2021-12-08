@@ -1,12 +1,12 @@
 ﻿@*@CodeCopy*@
 @{
+    @using SnQTranslator.AspMvc.Models.Modules.View
     @using SnQTranslator.AspMvc.Modules.View
-    @model SnQTranslator.AspMvc.Models.IdentityModel
+    @model DisplayViewModel
 
     var viewBagInfo = Model.ViewBagInfo;
     var property = viewBagInfo.DisplayProperty;
-    var displayViewModel = ViewModelCreator.CreateDisplayViewModel(viewBagInfo, Model);
 
-    @displayViewModel.GetDisplayValue(property)
+    @Model.GetDisplayValue(property)
     viewBagInfo.Handled = true;
 }

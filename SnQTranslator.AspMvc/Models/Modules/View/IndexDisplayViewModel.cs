@@ -8,7 +8,7 @@ using System.Reflection;
 
 namespace SnQTranslator.AspMvc.Models.Modules.View
 {
-    public partial class DisplayViewModel : ViewModel, IDisplayViewModel
+    public class IndexDisplayViewModel : ViewModel, IDisplayViewModel
     {
         private ModelObject model;
         private ModelObject displayModel;
@@ -17,46 +17,43 @@ namespace SnQTranslator.AspMvc.Models.Modules.View
         public ModelObject Model
         {
             get => model;
-            set => model = value ?? model;
+            set
+            {
+                model = value ?? model;
+            }
         }
         public ModelObject DisplayModel
         {
             get => displayModel ?? model;
             set => displayModel = value;
         }
-        public IEnumerable<PropertyInfo> DisplayProperties
+        public IEnumerable<PropertyInfo> DisplayProperties 
         {
-            get => displayProperties;
-            set => displayProperties = value ?? displayProperties;
+            get => displayProperties; 
+            set => displayProperties = value ?? displayProperties; 
         }
 
-        public DisplayViewModel(ViewBagWrapper viewBagInfo, ModelObject model, Type modelType, Type displayType)
+        public IndexDisplayViewModel(ViewBagWrapper viewBagInfo, Type modelType, Type displayType, ModelObject model, IEnumerable<PropertyInfo> displayProperties)
             : base(viewBagInfo, modelType, displayType)
         {
             model.CheckArgument(nameof(model));
+            displayProperties.CheckArgument(nameof(displayProperties));
 
-            Constructing();
             Model = model;
-            Constructed();
-        }
-        partial void Constructing();
-        partial void Constructed();
-
-        public virtual IEnumerable<PropertyInfo> GetHiddenProperties()
-        {
-            return GetHiddenProperties(DisplayType);
+            DisplayProperties = displayProperties;
         }
         public virtual IEnumerable<PropertyInfo> GetDisplayProperties()
         {
-            return displayProperties ??= GetDisplayProperties(DisplayType);
+            return DisplayProperties;
         }
+
         public virtual object GetValue(PropertyInfo propertyInfo)
         {
-            return GetValue(Model, propertyInfo);
+            return GetValue(DisplayModel, propertyInfo);
         }
         public virtual string GetDisplayValue(PropertyInfo propertyInfo)
         {
-            return GetDisplayValue(Model, propertyInfo);
+            return GetDisplayValue(DisplayModel, propertyInfo);
         }
     }
 }

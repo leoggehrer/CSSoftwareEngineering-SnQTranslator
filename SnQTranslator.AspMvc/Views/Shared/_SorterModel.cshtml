@@ -2,14 +2,14 @@
 @{
     @using SnQTranslator.AspMvc.Models.Modules.View
     @using System.Reflection
-    @model FilterModel
+    @model SorterModel
 
     var index = 0;
     var viewBagInfo = Model.ViewBagInfo;
     var sessionInfo = Model.SessionInfo;
     var indexViewModel = Model.IndexViewModel;
-    var filterValues = sessionInfo.GetFilterValues(viewBagInfo.Controller);
-    var properties = indexViewModel.GetFilterProperties();
+    var sorterValues = sessionInfo.GetSorterValues(viewBagInfo.Controller);
+    var properties = indexViewModel.GetOrderProperties();
 
     @foreach (var property in properties)
     {
@@ -18,7 +18,7 @@
             Model.ViewBagInfo.Index = index++;
             Model.ViewBagInfo.Handled = false;
             Model.ViewBagInfo.DisplayProperty = property;
-            @await Html.PartialAsync("_FilterGroup", Model)
+            @await Html.PartialAsync("_SorterGroup", Model)
         }
     }
 }
