@@ -20,7 +20,7 @@
     viewBagInfo.Controller = ViewContext.RouteData.Values["controller"].ToString();
     viewBagInfo.Action = ViewContext.RouteData.Values["action"].ToString();
 
-    var all = string.Empty;
+    var all = "*";
     var page = string.Empty;
     var appItems = ViewData[nameof(AppItem)] as string[];
 
@@ -112,7 +112,7 @@
         }
         else
         {
-            var action = Url.Action("IndexByPage", viewBagInfo.Controller, new { appName, page = string.Empty });
+            var action = Url.Action("IndexByPage", viewBagInfo.Controller, new { appName, page = all });
 
             <div class="p-0" style="margin-left: 10px;"><a class="page-link" href="@action">All</a></div>
         }

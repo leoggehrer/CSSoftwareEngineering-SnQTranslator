@@ -28,7 +28,6 @@ namespace SnQTranslator.AspMvc.Controllers.Persistence.App
             var appItems = await appItemsCtrl.GetAllAsync().ConfigureAwait(false);
             var predicate = string.Empty;
 
-            page = page?.ToLower();
             ViewData[nameof(Models.Business.App.AppItem)] = new string[] { "" }.Union(appItems.Select(e => e.Name)).ToArray();
             SessionWrapper.SetStringValue(nameof(page), page);
 
@@ -37,6 +36,7 @@ namespace SnQTranslator.AspMvc.Controllers.Persistence.App
             {
                 predicate = $"AppName.Equals(\"{appName}\")";
             }
+            page = page != null && page.Equals("*") ? String.Empty : page?.ToLower();
             if (string.IsNullOrEmpty(page) == false)
             {
                 if (predicate.Length == 0)
@@ -68,7 +68,7 @@ namespace SnQTranslator.AspMvc.Controllers.Persistence.App
         [ActionName("IndexByAppName")]
         public IActionResult IndexByAppName(string appName)
         {
-            var page = SessionWrapper.GetStringValue("page");
+            var page = SessionWrapper.GetStringValue("page", "*");
 
             SessionWrapper.SetStringValue("appname", appName);
             return RedirectToAction("IndexByPage", new { appName, page });
