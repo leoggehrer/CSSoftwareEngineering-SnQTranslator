@@ -1,5 +1,5 @@
-﻿using CommonBase.Extensions;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 using SnQTranslator.AspMvc.Models.Modules.Common;
 using System;
 using System.Collections.Generic;
@@ -11,10 +11,18 @@ namespace SnQTranslator.AspMvc.Controllers.Persistence.App
 {
     public partial class TranslationsController
     {
+        public override void OnActionExecuting(ActionExecutingContext context)
+        {
+            if (string.IsNullOrEmpty(SessionInfo.SessionToken))
+            {
+                CheckSessionToken = false;
+            }
+            base.OnActionExecuting(context);
+        }
         public override Task<IActionResult> IndexAsync()
         {
-            var page = SessionWrapper.GetStringValue("page", "A");
-            var appName = SessionWrapper.GetStringValue("appname");
+            var page = SessionInfo.GetStringValue("page", "A");
+            var appName = SessionInfo.GetStringValue("appname");
 
             return Task.Run<IActionResult>(() => RedirectToAction("IndexByPage", new { appName, page }));
         }
@@ -29,7 +37,7 @@ namespace SnQTranslator.AspMvc.Controllers.Persistence.App
             var predicate = string.Empty;
 
             ViewData[nameof(Models.Business.App.AppItem)] = new string[] { "" }.Union(appItems.Select(e => e.Name)).ToArray();
-            SessionWrapper.SetStringValue(nameof(page), page);
+            SessionInfo.SetStringValue(nameof(page), page);
 
             appName = appName != null && appName.Equals("*") ? String.Empty : appName;
             if (string.IsNullOrEmpty(appName) == false)
@@ -68,15 +76,15 @@ namespace SnQTranslator.AspMvc.Controllers.Persistence.App
         [ActionName("IndexByAppName")]
         public IActionResult IndexByAppName(string appName)
         {
-            var page = SessionWrapper.GetStringValue("page", "*");
+            var page = SessionInfo.GetStringValue("page", "*");
 
-            SessionWrapper.SetStringValue("appname", appName);
+            SessionInfo.SetStringValue("appname", appName);
             return RedirectToAction("IndexByPage", new { appName, page });
         }
 
         protected override async Task<Model> CreateModelAsync()
         {
-            var appName = SessionWrapper.GetStringValue("appname");
+            var appName = SessionInfo.GetStringValue("appname");
             var result = await base.CreateModelAsync().ConfigureAwait(false);
 
             if (appName != null && appName.Equals("*") == false)
@@ -172,6 +180,5 @@ namespace SnQTranslator.AspMvc.Controllers.Persistence.App
             return View(model);
         }
         #endregion Export and Import
-
     }
 }
