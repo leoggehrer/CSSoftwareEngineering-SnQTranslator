@@ -1,13 +1,11 @@
 ﻿//@CodeCopy
 //MdStart
 
-using CommonBase.Extensions;
 using CommonBase.Modules.Configuration;
 using SnQTranslator.AspMvc.Models.ThirdParty;
 using SnQTranslator.AspMvc.Modules.Handler;
 using SnQTranslator.Contracts.Modules.Common;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 

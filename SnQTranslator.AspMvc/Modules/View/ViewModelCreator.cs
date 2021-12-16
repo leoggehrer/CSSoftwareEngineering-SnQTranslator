@@ -1,9 +1,7 @@
 ﻿//@CodeCopy
 //MdStart
-using CommonBase.Extensions;
 using SnQTranslator.AspMvc.Models.Modules.View;
 using System;
-using System.Collections.Generic;
 
 namespace SnQTranslator.AspMvc.Modules.View
 {

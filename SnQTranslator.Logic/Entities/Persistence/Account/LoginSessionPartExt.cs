@@ -4,7 +4,6 @@
 using SnQTranslator.Contracts.Persistence.Account;
 using SnQTranslator.Logic.Modules.Security;
 using System;
-using System.Collections.Generic;
 
 namespace SnQTranslator.Logic.Entities.Persistence.Account
 {

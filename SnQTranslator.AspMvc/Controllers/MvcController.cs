@@ -1,6 +1,5 @@
 ﻿//@CodeCopy
 //MdStart
-using CommonBase.Extensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -8,12 +7,10 @@ using SnQTranslator.AspMvc.Models.Modules.Csv;
 using SnQTranslator.AspMvc.Modules.Language;
 using SnQTranslator.AspMvc.Modules.Session;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace SnQTranslator.AspMvc.Controllers
 {

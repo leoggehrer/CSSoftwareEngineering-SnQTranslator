@@ -2,7 +2,6 @@
 //MdStart
 #if ACCOUNT_ON
 using System;
-using System.Collections.Generic;
 
 namespace SnQTranslator.Logic.Modules.Security
 {

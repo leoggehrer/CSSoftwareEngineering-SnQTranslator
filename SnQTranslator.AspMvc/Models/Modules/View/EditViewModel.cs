@@ -1,15 +1,20 @@
 ﻿//@CodeCopy
 //MdStart
-using CommonBase.Extensions;
 using SnQTranslator.AspMvc.Modules.View;
 using System;
-using System.Collections.Generic;
 using System.Reflection;
 
 namespace SnQTranslator.AspMvc.Models.Modules.View
 {
     public partial class EditViewModel : ViewModel
     {
+        static EditViewModel()
+        {
+            ClassConstructing();
+            ClassConstructed();
+        }
+        static partial void ClassConstructing();
+        static partial void ClassConstructed();
         public IdentityModel Model { get; init; }
         public IdentityModel DisplayModel => Model;
 

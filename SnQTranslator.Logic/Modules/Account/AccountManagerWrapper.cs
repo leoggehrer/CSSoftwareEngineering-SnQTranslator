@@ -3,7 +3,6 @@
 #if ACCOUNT_ON
 using SnQTranslator.Contracts.Client;
 using SnQTranslator.Contracts.Persistence.Account;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace SnQTranslator.Logic.Modules.Account

@@ -5,7 +5,6 @@ using Microsoft.EntityFrameworkCore;
 using SnQTranslator.Logic.Controllers.Persistence.Account;
 using SnQTranslator.Logic.Entities.Business.Account;
 using SnQTranslator.Logic.Entities.Persistence.Account;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 

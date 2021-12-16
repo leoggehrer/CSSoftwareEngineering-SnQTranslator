@@ -30,7 +30,7 @@ namespace SnQTranslator.AspMvc.Controllers.Persistence.App
         [ActionName("IndexByPage")]
         public async Task<IActionResult> IndexByPageAsync(string appName, string page)
         {
-            using var translationsCtrl = CreateController();
+            using var ctrl = CreateController();
             using var appItemsCtrl = CreateController<Contracts.Business.App.IAppItem>();
             var entities = default(IEnumerable<Contracts.Persistence.App.ITranslation>);
             var appItems = await appItemsCtrl.GetAllAsync().ConfigureAwait(false);
@@ -59,11 +59,11 @@ namespace SnQTranslator.AspMvc.Controllers.Persistence.App
 
             if (string.IsNullOrEmpty(predicate))
             {
-                entities = await translationsCtrl.GetAllAsync().ConfigureAwait(false);
+                entities = await ctrl.GetAllAsync().ConfigureAwait(false);
             }
             else
             {
-                entities = await translationsCtrl.QueryAllAsync(predicate).ConfigureAwait(false);
+                entities = await ctrl.QueryAllAsync(predicate).ConfigureAwait(false);
             }
             var models = entities.OrderBy(e => e.Key)
                                  .Select(e => ToModel(e));
@@ -109,10 +109,28 @@ namespace SnQTranslator.AspMvc.Controllers.Persistence.App
         public async Task<FileResult> ExportAsync()
         {
             var fileName = "Translation.csv";
+            var appName = SessionInfo.GetStringValue("appname");
             using var ctrl = CreateController();
-            var entities = (await ctrl.GetAllAsync().ConfigureAwait(false)).Select(e => ToModel(e));
+            var entities = default(IEnumerable<Contracts.Persistence.App.ITranslation>);
+            var predicate = string.Empty;
 
-            return ExportDefault(CsvHeader, entities, fileName);
+            appName = appName != null && appName.Equals("*") ? String.Empty : appName;
+            if (string.IsNullOrEmpty(appName) == false)
+            {
+                predicate = $"AppName.Equals(\"{appName}\")";
+            }
+            if (string.IsNullOrEmpty(predicate))
+            {
+                entities = await ctrl.GetAllAsync().ConfigureAwait(false);
+            }
+            else
+            {
+                entities = await ctrl.QueryAllAsync(predicate).ConfigureAwait(false);
+            }
+            var models = entities.OrderBy(e => e.Key)
+                                 .Select(e => ToModel(e));
+
+            return ExportDefault(CsvHeader, models, fileName);
         }
 
         [ActionName("Import")]

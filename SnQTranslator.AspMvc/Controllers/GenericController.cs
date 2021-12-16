@@ -1,6 +1,5 @@
 ﻿//@CodeCopy
 //MdStart
-using CommonBase.Extensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SnQTranslator.AspMvc.Models;
@@ -8,7 +7,6 @@ using SnQTranslator.AspMvc.Models.Modules.Common;
 using SnQTranslator.AspMvc.Models.Modules.View;
 using SnQTranslator.AspMvc.Modules.View;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -63,14 +61,42 @@ namespace SnQTranslator.AspMvc.Controllers
         protected string ControllerName => GetType().Name.Replace("Controller", string.Empty);
 
         #region Before view
-        protected virtual TModel BeforeView(TModel model, ActionMode action) => model;
-        protected virtual IEnumerable<TModel> BeforeView(IEnumerable<TModel> models, ActionMode action) => models;
+        protected virtual void BeforeView()
+        {
+        }
+        protected virtual Task BeforeViewAsync() => Task.FromResult(0);
+        protected virtual TModel BeforeView(TModel model, ActionMode action)
+        {
+            BeforeView();
+            return model;
+        }
+        protected virtual IEnumerable<TModel> BeforeView(IEnumerable<TModel> models, ActionMode action)
+        {
+            BeforeView();
+            return models;
+        }
 
-        protected virtual Task<TModel> BeforeViewAsync(TModel model, ActionMode action) => Task.FromResult(model);
-        protected virtual Task<IEnumerable<TModel>> BeforeViewAsync(IEnumerable<TModel> models, ActionMode action) => Task.FromResult(models);
+        protected virtual Task<TModel> BeforeViewAsync(TModel model, ActionMode action)
+        {
+            BeforeViewAsync();
+            return Task.FromResult(model);
+        }
+        protected virtual Task<IEnumerable<TModel>> BeforeViewAsync(IEnumerable<TModel> models, ActionMode action)
+        {
+            BeforeViewAsync();
+            return Task.FromResult(models);
+        }
 
-        protected virtual MasterDetailModel BeforeViewMasterDetail(MasterDetailModel model, ActionMode action) => model;
-        protected virtual Task<MasterDetailModel> BeforeViewMasterDetailAsync(MasterDetailModel model, ActionMode action) => Task.FromResult(model);
+        protected virtual MasterDetailModel BeforeViewMasterDetail(MasterDetailModel model, ActionMode action)
+        {
+            BeforeView();
+            return model;
+        }
+        protected virtual Task<MasterDetailModel> BeforeViewMasterDetailAsync(MasterDetailModel model, ActionMode action)
+        {
+            BeforeView();
+            return Task.FromResult(model);
+        }
         #endregion Before view
 
         protected virtual TModel ToModel(TContract entity)
@@ -742,9 +768,11 @@ namespace SnQTranslator.AspMvc.Controllers
                         var oneModel = oneProperty?.GetValue(model) as IdentityModel;
                         var createManyMethod = model.GetType().GetMethod("CreateManyModel");
                         var manyModel = createManyMethod?.Invoke(model, Array.Empty<object>()) as IdentityModel;
+                        var addManyMethod = model.GetType().GetMethod("AddManyModel");
 
                         masterDetailModel.Master = oneModel;
                         masterDetailModel.Detail = manyModel;
+                        addManyMethod?.Invoke(model, new object[] { masterDetailModel.Detail });
                     }
                 }
                 catch (Exception ex)
@@ -784,10 +812,12 @@ namespace SnQTranslator.AspMvc.Controllers
                         var oneModel = oneProperty?.GetValue(model) as IdentityModel;
                         var getManyMethod = model.GetType().GetMethod("GetManyModelById");
                         var manyModel = getManyMethod?.Invoke(model, new object[] { detailId }) as IdentityModel;
+                        var addManyMethod = model.GetType().GetMethod("AddManyModel");
 
                         masterDetailModel.Master = oneModel;
                         masterDetailModel.Detail = manyModel;
                         manyModel.Id = 0;
+                        addManyMethod?.Invoke(model, new object[] { masterDetailModel.Detail });
                     }
                 }
                 catch (Exception ex)

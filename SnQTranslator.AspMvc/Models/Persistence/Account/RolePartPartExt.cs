@@ -2,7 +2,6 @@
 //MdStart
 #if ACCOUNT_ON
 
-using System.Collections.Generic;
 
 namespace SnQTranslator.AspMvc.Models.Persistence.Account
 {

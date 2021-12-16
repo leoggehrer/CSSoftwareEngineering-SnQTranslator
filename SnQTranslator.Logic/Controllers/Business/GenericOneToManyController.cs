@@ -1,7 +1,6 @@
 ﻿//@CodeCopy
 //MdStart
 using SnQTranslator.Logic.Modules.Exception;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -77,7 +76,7 @@ namespace SnQTranslator.Logic.Controllers.Business
         }
         protected virtual PropertyInfo GetForeignKeyToOne()
         {
-            return typeof(TMany).GetProperty($"{typeof(TOneEntity).Name}Id");
+            return typeof(TMany).GetInterfaceProperty($"{typeof(TOneEntity).Name}Id");
         }
         protected virtual async Task LoadDetailsAsync(E entity, int masterId)
         {

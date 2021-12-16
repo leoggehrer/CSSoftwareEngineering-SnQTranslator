@@ -1,12 +1,10 @@
 ﻿//@CodeCopy
 //MdStart
 #if ACCOUNT_ON
-using CommonBase.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using SnQTranslator.AspMvc.Models.Modules.Common;
 using SnQTranslator.AspMvc.Modules.View;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Model = SnQTranslator.AspMvc.Models.Business.Account.IdentityUser;

@@ -1,11 +1,9 @@
 ﻿//@CodeCopy
 //MdStart
-using CommonBase.Extensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using SnQTranslator.AspMvc.Modules.Session;
 using SnQTranslator.AspMvc.Modules.View;
-using System.Collections.Generic;
 using System.Reflection;
 
 namespace SnQTranslator.AspMvc.Models.Modules.View

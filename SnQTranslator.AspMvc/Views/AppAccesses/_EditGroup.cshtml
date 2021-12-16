@@ -1,4 +1,5 @@
 ﻿@*@CodeCopy*@
+@*#if ACCOUNT_ON*@
 @{
     @using SnQTranslator.AspMvc.Models.Modules.View
     @using SnQTranslator.AspMvc.Models.Persistence.Account
@@ -33,3 +34,4 @@
         @await Html.PartialAsync("../Shared/_EditGroup", Model)
     }
 }
+@*#endif*@

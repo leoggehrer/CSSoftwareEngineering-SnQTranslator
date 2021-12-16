@@ -1,7 +1,5 @@
 ﻿//@CodeCopy
 //MdStart
-using SnQTranslator.AspMvc.Modules.View;
-using System.Collections.Generic;
 using System.Reflection;
 
 namespace SnQTranslator.AspMvc.Models.Modules.View

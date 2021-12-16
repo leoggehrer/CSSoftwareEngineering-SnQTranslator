@@ -1,6 +1,5 @@
 ﻿//@CodeCopy
 //MdStart
-using CommonBase.Extensions;
 using CommonBase.Modules.Configuration;
 using SnQTranslator.AspMvc.Models.ThirdParty;
 using SnQTranslator.AspMvc.Modules.Handler;
