@@ -19,80 +19,6 @@ namespace SnQTranslator.AspMvc.Controllers.Persistence.App
             }
             base.OnActionExecuting(context);
         }
-        public override Task<IActionResult> IndexAsync()
-        {
-            var page = SessionInfo.GetStringValue("page", "A");
-            var appName = SessionInfo.GetStringValue("appname");
-
-            return Task.Run<IActionResult>(() => RedirectToAction("IndexByPage", new { appName, page }));
-        }
-
-        [ActionName("IndexByPage")]
-        public async Task<IActionResult> IndexByPageAsync(string appName, string page)
-        {
-            using var ctrl = CreateController();
-            using var appItemsCtrl = CreateController<Contracts.Business.App.IAppItem>();
-            var entities = default(IEnumerable<Contracts.Persistence.App.ITranslation>);
-            var appItems = await appItemsCtrl.GetAllAsync().ConfigureAwait(false);
-            var predicate = string.Empty;
-
-            ViewData[nameof(Models.Business.App.AppItem)] = new string[] { "" }.Union(appItems.Select(e => e.Name)).ToArray();
-            SessionInfo.SetStringValue(nameof(page), page);
-
-            appName = appName != null && appName.Equals("*") ? String.Empty : appName;
-            if (string.IsNullOrEmpty(appName) == false)
-            {
-                predicate = $"AppName.Equals(\"{appName}\")";
-            }
-            page = page != null && page.Equals("*") ? String.Empty : page?.ToLower();
-            if (string.IsNullOrEmpty(page) == false)
-            {
-                if (predicate.Length == 0)
-                {
-                    predicate = $"Key.ToLower().StartsWith(\"{page}\")";
-                }
-                else
-                {
-                    predicate = $"{predicate} && Key.ToLower().StartsWith(\"{page}\")";
-                }
-            }
-
-            if (string.IsNullOrEmpty(predicate))
-            {
-                entities = await ctrl.GetAllAsync().ConfigureAwait(false);
-            }
-            else
-            {
-                entities = await ctrl.QueryAllAsync(predicate).ConfigureAwait(false);
-            }
-            var models = entities.OrderBy(e => e.Key)
-                                 .Select(e => ToModel(e));
-
-            models = BeforeView(models, ActionMode.Index);
-            models = await BeforeViewAsync(models, ActionMode.Index).ConfigureAwait(false);
-            return ReturnIndexView(models);
-        }
-
-        [ActionName("IndexByAppName")]
-        public IActionResult IndexByAppName(string appName)
-        {
-            var page = SessionInfo.GetStringValue("page", "*");
-
-            SessionInfo.SetStringValue("appname", appName);
-            return RedirectToAction("IndexByPage", new { appName, page });
-        }
-
-        protected override async Task<Model> CreateModelAsync()
-        {
-            var appName = SessionInfo.GetStringValue("appname");
-            var result = await base.CreateModelAsync().ConfigureAwait(false);
-
-            if (appName != null && appName.Equals("*") == false)
-            {
-                result.AppName = appName;
-            }
-            return result;
-        }
 
         #region Export and Import
         protected override string[] CsvHeader => new string[]
@@ -109,24 +35,7 @@ namespace SnQTranslator.AspMvc.Controllers.Persistence.App
         public async Task<FileResult> ExportAsync()
         {
             var fileName = "Translation.csv";
-            var appName = SessionInfo.GetStringValue("appname");
-            using var ctrl = CreateController();
-            var entities = default(IEnumerable<Contracts.Persistence.App.ITranslation>);
-            var predicate = string.Empty;
-
-            appName = appName != null && appName.Equals("*") ? String.Empty : appName;
-            if (string.IsNullOrEmpty(appName) == false)
-            {
-                predicate = $"AppName.Equals(\"{appName}\")";
-            }
-            if (string.IsNullOrEmpty(predicate))
-            {
-                entities = await ctrl.GetAllAsync().ConfigureAwait(false);
-            }
-            else
-            {
-                entities = await ctrl.QueryAllAsync(predicate).ConfigureAwait(false);
-            }
+            var entities = await QueryByFilterAndSortAsync().ConfigureAwait(false);
             var models = entities.OrderBy(e => e.Key)
                                  .Select(e => ToModel(e));
 

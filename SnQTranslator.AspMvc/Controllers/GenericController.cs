@@ -186,6 +186,34 @@ namespace SnQTranslator.AspMvc.Controllers
         {
             SessionInfo.SetSorterValues(ControllerName, sorterValues);
         }
+
+        protected virtual async Task<IEnumerable<TContract>> QueryByFilterAndSortAsync()
+        {
+            IEnumerable<TContract> result;
+            var filterValues = SessionInfo.GetFilterValues(ControllerName);
+            var predicate = filterValues?.CreatePredicate();
+            var sorterValues = SessionInfo.GetSorterValues(ControllerName);
+            var orderBy = sorterValues?.CreateOrderBy();
+            using var ctrl = CreateController();
+
+            if (predicate.HasContent() && orderBy.HasContent())
+            {
+                result = await ctrl.QueryAllAsync(predicate, orderBy).ConfigureAwait(false);
+            }
+            else if (predicate.HasContent())
+            {
+                result = await ctrl.QueryAllAsync(predicate).ConfigureAwait(false);
+            }
+            else if (orderBy.HasContent())
+            {
+                result = await ctrl.GetAllAsync(orderBy).ConfigureAwait(false);
+            }
+            else
+            {
+                result = await ctrl.GetAllAsync().ConfigureAwait(false);
+            }
+            return result;
+        }
         protected virtual async Task<IEnumerable<TContract>> QueryPageListAsync(int pageIndex, int pageSize)
         {
             IEnumerable<TContract> result;
@@ -859,7 +887,7 @@ namespace SnQTranslator.AspMvc.Controllers
                         var oneModel = oneProperty?.GetValue(model) as IdentityModel;
                         var createManyMethod = model.GetType().GetMethod("CreateManyModel");
                         var manyModel = createManyMethod?.Invoke(model, Array.Empty<object>()) as IdentityModel;
-                        var addManyMethod = model.GetType().GetMethod("AddManyItem");
+                        var addManyMethod = model.GetType().GetMethod("AddManyModel");
 
                         masterDetailModel.Master = oneModel;
                         masterDetailModel.Detail = manyModel;
@@ -957,13 +985,13 @@ namespace SnQTranslator.AspMvc.Controllers
                         var oneModel = oneProperty?.GetValue(model) as IdentityModel;
                         var getManyMethod = model.GetType().GetMethod("GetManyModelById");
 
-                        if (GetObjectId(nameof(Models.MasterDetailModel.Detail), formCollection, out int detailId))
+                        if (GetObjectId(nameof(MasterDetailModel.Detail), formCollection, out int detailId))
                         {
                             var manyModel = getManyMethod?.Invoke(model, new object[] { detailId }) as IdentityModel;
 
                             masterDetailModel.Master = oneModel;
                             masterDetailModel.Detail = manyModel;
-                            SetModelValues(masterDetailModel.Detail, nameof(Models.MasterDetailModel.Detail), formCollection);
+                            SetModelValues(masterDetailModel.Detail, nameof(MasterDetailModel.Detail), formCollection);
                         }
 
                         using var ctrl = CreateController();
@@ -986,7 +1014,7 @@ namespace SnQTranslator.AspMvc.Controllers
                 masterDetailModel = BeforeViewMasterDetail(masterDetailModel, ActionMode.EditDetail);
                 masterDetailModel = await BeforeViewMasterDetailAsync(masterDetailModel, ActionMode.EditDetail).ConfigureAwait(false);
             }
-            return HasError ? ReturnCreateDetailView(masterDetailModel) : RedirectToAction("Details", new { id = model.Id });
+            return HasError ? ReturnEditDetailView(masterDetailModel) : RedirectToAction("Details", new { id = model.Id });
         }
         partial void BeforeUpdateDetail(ref TModel model, ref bool handled);
         partial void AfterUpdateDetail(TModel model);
@@ -1160,6 +1188,27 @@ namespace SnQTranslator.AspMvc.Controllers
                         if (string.IsNullOrEmpty(formValue) == false && Guid.TryParse(formValue, out Guid guidVal))
                         {
                             pi.SetValue(model, guidVal);
+                        }
+                    }
+                    else if (pi.PropertyType == typeof(float) || pi.PropertyType == typeof(float?))
+                    {
+                        if (string.IsNullOrEmpty(formValue) == false && float.TryParse(formValue, out float parseVal))
+                        {
+                            pi.SetValue(model, parseVal);
+                        }
+                    }
+                    else if (pi.PropertyType == typeof(double) || pi.PropertyType == typeof(double?))
+                    {
+                        if (string.IsNullOrEmpty(formValue) == false && double.TryParse(formValue, out double parseVal))
+                        {
+                            pi.SetValue(model, parseVal);
+                        }
+                    }
+                    else if (pi.PropertyType == typeof(decimal) || pi.PropertyType == typeof(decimal?))
+                    {
+                        if (string.IsNullOrEmpty(formValue) == false && decimal.TryParse(formValue, out decimal parseVal))
+                        {
+                            pi.SetValue(model, parseVal);
                         }
                     }
                     else

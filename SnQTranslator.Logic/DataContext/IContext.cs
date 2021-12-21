@@ -10,6 +10,8 @@ namespace SnQTranslator.Logic.DataContext
 {
     internal interface IContext : IDisposable
     {
+        EntityState GetEntityState<T>(T entity);
+
         DbSet<E> Set<C, E>()
             where C : IIdentifiable
             where E : IdentityEntity, C;

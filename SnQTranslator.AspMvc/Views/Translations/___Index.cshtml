@@ -1,0 +1,128 @@
+﻿@{
+    @using SnQTranslator.AspMvc.Models.Modules.Common
+    @using SnQTranslator.AspMvc.Models.Business.App
+    @using SnQTranslator.AspMvc.Models.Modules.View
+    @using SnQTranslator.AspMvc.Modules.Handler
+    @using SnQTranslator.AspMvc.Modules.Session
+    @using SnQTranslator.AspMvc.Modules.Language
+    @using SnQTranslator.AspMvc.Modules.View
+    @model IndexViewModel
+
+    var viewBagInfo = Model?.ViewBagInfo;
+    var sessionInfo = new SessionWrapper(Context.Session);
+
+    if (viewBagInfo == null)
+    {
+        viewBagInfo = new ViewBagWrapper(ViewBag);
+    }
+
+    viewBagInfo.Translate = Translator.TranslateIt;
+    viewBagInfo.Controller = ViewContext.RouteData.Values["controller"].ToString();
+    viewBagInfo.Action = ViewContext.RouteData.Values["action"].ToString();
+
+    var all = "*";
+    var page = string.Empty;
+    var appItems = ViewData[nameof(AppItem)] as string[];
+
+    ViewData["Title"] = viewBagInfo.Title;
+    <div class="row">
+        <div class="col-md-12 d-flex">
+            <h2 id="quote">@viewBagInfo.Title</h2>
+            @if ((viewBagInfo.CommandMode & SnQTranslator.AspMvc.Models.Modules.Common.CommandMode.Create) > 0)
+            {
+                <div class="ml-auto">
+                    <a asp-action="@nameof(CommandMode.Create)" class="btn btn-outline-dark" title="@viewBagInfo.TranslateFor("Create new...")"><i class="fa fa-plus" aria-hidden="true"></i></a>
+                </div>
+            }
+        </div>
+    </div>
+
+    if (sessionInfo.HasValue(nameof(page)))
+    {
+        page = sessionInfo.GetStringValue(nameof(page), all);
+    }
+}
+
+@if (string.IsNullOrEmpty(sessionInfo.SessionToken) == false)
+{
+    <hr />
+    <div class="d-flex bg-transparent">
+        <div class="mr-auto p-sm-2">
+        </div>
+        <div class="p-sm-2">
+            <a asp-action="Export" class="btn btn-outline-secondary">@viewBagInfo.TranslateFor("Export")</a>
+        </div>
+        <div class="p-sm-2">
+            <a asp-action="Import" class="btn btn-outline-primary">@viewBagInfo.TranslateFor("Import")</a>
+        </div>
+    </div>
+}
+
+@if (string.IsNullOrEmpty(ErrorHandler.LastViewError) == false)
+{
+    <div class="alert alert-danger" role="alert">
+        @ErrorHandler.GetLastViewErrorAndClear()
+    </div>
+}
+
+@{
+    var appName = sessionInfo.GetStringValue("appname");
+
+    if (appItems.Any(e => e != null && e.Equals(appName)) == false)
+    {
+        appName = null;
+    }
+    var selectItems = new SelectList(appItems).ToList();
+
+    selectItems.ForEach(e =>
+    {
+        if (string.IsNullOrEmpty(e.Text))
+        {
+            e.Text = "*";
+        }
+        if (appName != null && e != null && e.Text.Equals(appName))
+        {
+            e.Selected = true;
+        }
+    });
+    char chrStart = 'A', chrEnd = 'Z';
+    <div class="d-flex justify-content-center">
+        <div class="p-0" style="margin-right: 10px; min-width: 100px;">
+            @Html.DropDownList("AppNames", selectItems, null, new { @class = "form-control", @onchange = "callByAppName(this.value)" })
+        </div>
+        @for (char chrRun = chrStart; chrRun <= chrEnd; chrRun++)
+        {
+            var strRun = Char.ToString(chrRun);
+            var action = Url.Action("IndexByPage", viewBagInfo.Controller, new { appName, page = strRun });
+
+            if (chrRun.ToString().Equals(page, StringComparison.CurrentCultureIgnoreCase))
+            {
+                <div class="p-sm-0"><a class="page-link" style="background-color: lightgray;" href="@action">@strRun</a></div>
+            }
+            else
+            {
+                <div class="p-sm-0"><a class="page-link" href="@action">@strRun</a></div>
+            }
+        }
+        @if (string.IsNullOrEmpty(page) || page.Equals(all, StringComparison.CurrentCultureIgnoreCase))
+        {
+            var action = Url.Action("IndexByPage", viewBagInfo.Controller, new { appName, page = all });
+
+            <div class="p-0" style="margin-left: 10px;"><a class="page-link" style="background-color: lightgray;" href="@action">All</a></div>
+        }
+        else
+        {
+            var action = Url.Action("IndexByPage", viewBagInfo.Controller, new { appName, page = all });
+
+            <div class="p-0" style="margin-left: 10px;"><a class="page-link" href="@action">All</a></div>
+        }
+    </div>
+    <p></p>
+    @await Html.PartialAsync("_CardList", Model)
+}
+
+<script>
+    function callByAppName(val) {
+        window.location.href = "/Translations/IndexByAppName?appName=" + val;
+    }
+</script>
