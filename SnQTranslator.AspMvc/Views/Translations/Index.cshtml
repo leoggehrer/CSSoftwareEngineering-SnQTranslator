@@ -25,6 +25,10 @@
             </div>
         </div>
     }
+    else
+    {
+        viewBagInfo.CommandMode = CommandMode.None;
+    }
 
     @await Html.PartialAsync("../Shared/Index", Model)
 }
