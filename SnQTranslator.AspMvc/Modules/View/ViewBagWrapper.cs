@@ -16,20 +16,30 @@ namespace SnQTranslator.AspMvc.Modules.View
             ViewBag = viewBag;
         }
 
-        public bool HasPager
+        public bool HasSearchBox
         {
-            get => ViewBag.HasPager != null ? (bool)ViewBag.HasPager : true;
-            set => ViewBag.HasPager = value;
-        }
-        public bool HasFilter
-        {
-            get => ViewBag.HasFilter != null ? (bool)ViewBag.HasFilter : true;
-            set => ViewBag.HasFilter = value;
+            get => ViewBag.HasSearchBox != null ? (bool)ViewBag.HasSearchBox : true;
+            set => ViewBag.HasSearchBox = value;
         }
         public bool HasSorter
         {
             get => ViewBag.HasSorter != null ? (bool)ViewBag.HasSorter : true;
             set => ViewBag.HasSorter = value;
+        }
+        public bool HasPagerTop
+        {
+            get => ViewBag.HasPagerTop != null ? (bool)ViewBag.HasPagerTop : true;
+            set => ViewBag.HasPagerTop = value;
+        }
+        public bool HasPagerBottom
+        {
+            get => ViewBag.HasPagerBottom != null ? (bool)ViewBag.HasPagerBottom : false;
+            set => ViewBag.HasPagerBottom = value;
+        }
+        public bool HasFilter
+        {
+            get => ViewBag.HasFilter != null ? (bool)ViewBag.HasFilter : false;
+            set => ViewBag.HasFilter = value;
         }
         public EditMode EditMode
         {
@@ -109,6 +119,17 @@ namespace SnQTranslator.AspMvc.Modules.View
                 if (ViewBag.IgnoreNames is not List<string> result)
                 {
                     ViewBag.IgnoreNames = result = new List<string>();
+                }
+                return result;
+            }
+        }
+        public List<string> IgnoreSearchItems
+        {
+            get
+            {
+                if (ViewBag.IgnoreSearchItems is not List<string> result)
+                {
+                    ViewBag.IgnoreSearchItems = result = new List<string>();
                 }
                 return result;
             }

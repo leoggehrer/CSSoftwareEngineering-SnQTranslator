@@ -31,7 +31,6 @@ namespace SnQTranslator.AspMvc.Models.Modules.View
             var result = default(string);
 
             if (operation.Equals(StaticLiterals.OperationEquals))
-
             {
                 result = $"{name} == \"{value}\"";
             }

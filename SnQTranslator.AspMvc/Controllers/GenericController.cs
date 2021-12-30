@@ -8,6 +8,7 @@ using SnQTranslator.AspMvc.Models.Modules.View;
 using SnQTranslator.AspMvc.Modules.View;
 using System;
 using System.Linq;
+using System.Linq.Dynamic.Core.Parser;
 using System.Threading.Tasks;
 
 namespace SnQTranslator.AspMvc.Controllers
@@ -59,6 +60,47 @@ namespace SnQTranslator.AspMvc.Controllers
         protected bool FromCreateToEdit { get; set; } = false;
         protected bool FromEditToIndex { get; set; } = true;
         protected string ControllerName => GetType().Name.Replace("Controller", string.Empty);
+
+        protected static Type GetViewModel(Type type)
+        {
+            type.CheckArgument(nameof(type));
+
+            var result = type;
+
+            if (type.IsGenericTypeOf(typeof(OneToAnotherModel<,,,>)))
+            {
+                result = type.BaseType.GetGenericArguments()[1];
+            }
+            else if (type.IsGenericTypeOf(typeof(OneToManyModel<,,,>)))
+            {
+                result = type.BaseType.GetGenericArguments()[1];
+            }
+            else if (type.IsGenericTypeOf(typeof(CompositeModel<,,,,,>)))
+            {
+                result = type.BaseType.GetGenericArguments()[1];
+            }
+            return result;
+        }
+        protected static Type GetViewInterface(Type type)
+        {
+            type.CheckArgument(nameof(type));
+
+            var result = type;
+
+            if (type.IsGenericTypeOf(typeof(OneToAnotherModel<,,,>)))
+            {
+                result = type.BaseType.GetGenericArguments()[0];
+            }
+            else if (type.IsGenericTypeOf(typeof(OneToManyModel<,,,>)))
+            {
+                result = type.BaseType.GetGenericArguments()[0];
+            }
+            else if (type.IsGenericTypeOf(typeof(CompositeModel<,,,,,>)))
+            {
+                result = type.BaseType.GetGenericArguments()[0];
+            }
+            return result;
+        }
 
         #region Before view
         protected virtual void BeforeView()
@@ -127,6 +169,13 @@ namespace SnQTranslator.AspMvc.Controllers
         partial void BeforeGetModel(ref TModel model, ref bool handled);
         partial void AfterGetModel(TModel model);
 
+        protected virtual SearchModel CreateSearchModel()
+        {
+            var models = new TModel[] { new TModel() };
+            var indexViewModel = CreateIndexViewModel(models);
+
+            return new SearchModel(SessionInfo, indexViewModel);
+        }
         protected virtual FilterModel CreateFilterModel()
         {
             var models = new TModel[] { new TModel() };
@@ -178,6 +227,10 @@ namespace SnQTranslator.AspMvc.Controllers
             SessionInfo.SetPageIndex(ControllerName, pageIndex);
             SessionInfo.SetPageSize(ControllerName, pageSize);
         }
+        protected virtual void SetSessionSearchValue(string searchValue)
+        {
+            SessionInfo.SetSearchValue(ControllerName, searchValue);
+        }
         protected virtual void SetSessionFilterValues(FilterValues filterValues)
         {
             SessionInfo.SetFilterValues(ControllerName, filterValues);
@@ -194,7 +247,27 @@ namespace SnQTranslator.AspMvc.Controllers
             var predicate = filterValues?.CreatePredicate();
             var sorterValues = SessionInfo.GetSorterValues(ControllerName);
             var orderBy = sorterValues?.CreateOrderBy();
+            var viewType = GetViewInterface(typeof(TModel));
+            var searchValue = SessionInfo.GetSearchValue(ControllerName);
+            var searchInterfacePredicate = SearchModel.CreateInterfacePredicate(viewType, searchValue);
+            var filterPredicate = filterValues?.CreatePredicate();
             using var ctrl = CreateController();
+
+            if (string.IsNullOrEmpty(filterPredicate) == false)
+            {
+                predicate = filterPredicate;
+            }
+            if (string.IsNullOrEmpty(searchInterfacePredicate) == false)
+            {
+                if (string.IsNullOrEmpty(predicate) == false)
+                {
+                    predicate = $"({predicate}) && ({searchInterfacePredicate})";
+                }
+                else
+                {
+                    predicate = searchInterfacePredicate;
+                }
+            }
 
             if (predicate.HasContent() && orderBy.HasContent())
             {
@@ -214,15 +287,39 @@ namespace SnQTranslator.AspMvc.Controllers
             }
             return result;
         }
-        protected virtual async Task<IEnumerable<TContract>> QueryPageListAsync(int pageIndex, int pageSize)
+        protected virtual async Task<IEnumerable<TContract>> QueryPageListAsync(int pageIndex, int pageSize, bool applyFilter)
         {
             IEnumerable<TContract> result;
             var pageCount = 0;
-            var filterValues = SessionInfo.GetFilterValues(ControllerName);
-            var predicate = filterValues?.CreatePredicate();
+            var predicate = string.Empty;
             var sorterValues = SessionInfo.GetSorterValues(ControllerName);
             var orderBy = sorterValues?.CreateOrderBy();
             using var ctrl = CreateController();
+
+            if (applyFilter)
+            {
+                var viewType = GetViewInterface(typeof(TModel));
+                var searchValue = SessionInfo.GetSearchValue(ControllerName);
+                var searchInterfacePredicate = SearchModel.CreateInterfacePredicate(viewType, searchValue);
+                var filterValues = SessionInfo.GetFilterValues(ControllerName);
+                var filterPredicate = filterValues?.CreatePredicate();
+
+                if (string.IsNullOrEmpty(filterPredicate) == false)
+                {
+                    predicate = filterPredicate;
+                }
+                if (string.IsNullOrEmpty(searchInterfacePredicate) == false)
+                {
+                    if (string.IsNullOrEmpty(predicate) == false)
+                    {
+                        predicate = $"({predicate}) && ({searchInterfacePredicate})";
+                    }
+                    else
+                    {
+                        predicate = searchInterfacePredicate;
+                    }
+                }
+            }
 
             SetSessionPageData(pageCount, pageIndex, pageSize);
             if (predicate.HasContent() && orderBy.HasContent())
@@ -255,8 +352,49 @@ namespace SnQTranslator.AspMvc.Controllers
             }
             return result;
         }
+        protected virtual async Task<IEnumerable<TModel>> QueryModelPageListAsync(int pageIndex, int pageSize, bool applyFilter)
+        {
+            var result = new List<TModel>();
+            IEnumerable<TContract> query = await QueryPageListAsync(pageIndex, pageSize, applyFilter).ConfigureAwait(false);
+
+            result.AddRange(query.Select(e => ToModel(e)));
+            result.AddRange(BeforeView(result.Eject(), ActionMode.Index));
+            result.AddRange(await BeforeViewAsync(result.Eject(), ActionMode.Index).ConfigureAwait(false));
+
+            return result;
+        }
 
         #region Index actions
+        [HttpPost]
+        [ActionName(nameof(ActionMode.Search))]
+        public virtual async Task<IActionResult> SearchAsync(IFormCollection formCollection)
+        {
+            var handled = false;
+            var models = default(IEnumerable<TModel>);
+
+            BeforeIndex(ref models, ref handled);
+            if (handled == false)
+            {
+                try
+                {
+                    var pageIndex = 0;
+                    var searchModel = CreateSearchModel();
+                    var pageSize = SessionInfo.GetPageSize(ControllerName);
+                    GetObjectValue(searchModel.ViewBagInfo.ItemPrefix, searchModel.GetSearchValueName(), formCollection, out string searchValue);
+
+                    SetSessionSearchValue(searchValue);
+
+                    models = await QueryModelPageListAsync(pageIndex, pageSize, true).ConfigureAwait(false);
+                }
+                catch (Exception ex)
+                {
+                    LastViewError = ex.GetError();
+                }
+            }
+            AfterIndex(models);
+            return ReturnIndexView(models);
+        }
+
         [HttpPost]
         [ActionName(nameof(ActionMode.Filter))]
         public virtual async Task<IActionResult> FilterAsync(IFormCollection formCollection)
@@ -276,11 +414,7 @@ namespace SnQTranslator.AspMvc.Controllers
 
                     SetSessionFilterValues(filterValues);
 
-                    var entities = await QueryPageListAsync(pageIndex, pageSize).ConfigureAwait(false);
-
-                    models = entities.Select(e => ToModel(e));
-                    models = BeforeView(models, ActionMode.Index);
-                    models = await BeforeViewAsync(models, ActionMode.Index).ConfigureAwait(false);
+                    models = await QueryModelPageListAsync(pageIndex, pageSize, true).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
@@ -310,11 +444,7 @@ namespace SnQTranslator.AspMvc.Controllers
 
                     SetSessionSorterValues(sorterValues);
 
-                    var entities = await QueryPageListAsync(pageIndex, pageSize).ConfigureAwait(false);
-
-                    models = entities.Select(e => ToModel(e));
-                    models = BeforeView(models, ActionMode.Index);
-                    models = await BeforeViewAsync(models, ActionMode.Index).ConfigureAwait(false);
+                    models = await QueryModelPageListAsync(pageIndex, pageSize, true).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
@@ -340,11 +470,7 @@ namespace SnQTranslator.AspMvc.Controllers
                     var pageIndex = SessionInfo.GetPageIndex(ControllerName);
                     var pageSize = SessionInfo.GetPageSize(ControllerName);
 
-                    var entities = await QueryPageListAsync(pageIndex, pageSize).ConfigureAwait(false);
-
-                    models = entities.Select(e => ToModel(e));
-                    models = BeforeView(models, ActionMode.Index);
-                    models = await BeforeViewAsync(models, ActionMode.Index).ConfigureAwait(false);
+                    models = await QueryModelPageListAsync(pageIndex, pageSize, true).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
@@ -370,11 +496,7 @@ namespace SnQTranslator.AspMvc.Controllers
             {
                 try
                 {
-                    var entities = await QueryPageListAsync(pageIndex, pageSize).ConfigureAwait(false);
-
-                    models = entities.Select(e => ToModel(e));
-                    models = BeforeView(models, ActionMode.Index);
-                    models = await BeforeViewAsync(models, ActionMode.Index).ConfigureAwait(false);
+                    models = await QueryModelPageListAsync(pageIndex, pageSize, true).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
@@ -401,11 +523,7 @@ namespace SnQTranslator.AspMvc.Controllers
                 {
                     var pageIndex = 0;
 
-                    var entities = await QueryPageListAsync(pageIndex, pageSize).ConfigureAwait(false);
-
-                    models = entities.Select(e => ToModel(e));
-                    models = BeforeView(models, ActionMode.Index);
-                    models = await BeforeViewAsync(models, ActionMode.Index).ConfigureAwait(false);
+                    models = await QueryModelPageListAsync(pageIndex, pageSize, true).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
@@ -1128,7 +1246,12 @@ namespace SnQTranslator.AspMvc.Controllers
             formCollection.CheckArgument(nameof(formCollection));
 
             var result = false;
-            var formKey = $"{prefix}.Id";
+            var formKey = "Id";
+
+            if (string.IsNullOrEmpty(prefix) == false)
+            {
+                formKey = $"{prefix}.{formKey}";
+            }
 
             if (formCollection.Keys.Contains(formKey))
             {
@@ -1139,6 +1262,28 @@ namespace SnQTranslator.AspMvc.Controllers
             else
             {
                 id = 0;
+            }
+            return result;
+        }
+        public static bool GetObjectValue(string prefix, string name, IFormCollection formCollection, out string value)
+        {
+            formCollection.CheckArgument(nameof(formCollection));
+
+            var result = false;
+            var formKey = name;
+
+            if (string.IsNullOrEmpty(prefix) == false)
+            {
+                formKey = $"{prefix}.{formKey}";
+            }
+
+            if (formCollection.Keys.Contains(formKey))
+            {
+                value = formCollection[formKey].FirstOrDefault();
+            }
+            else
+            {
+                value = string.Empty;
             }
             return result;
         }
