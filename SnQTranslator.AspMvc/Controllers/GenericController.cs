@@ -247,27 +247,7 @@ namespace SnQTranslator.AspMvc.Controllers
             var predicate = filterValues?.CreatePredicate();
             var sorterValues = SessionInfo.GetSorterValues(ControllerName);
             var orderBy = sorterValues?.CreateOrderBy();
-            var viewType = GetViewInterface(typeof(TModel));
-            var searchValue = SessionInfo.GetSearchValue(ControllerName);
-            var searchInterfacePredicate = SearchModel.CreateInterfacePredicate(viewType, searchValue);
-            var filterPredicate = filterValues?.CreatePredicate();
             using var ctrl = CreateController();
-
-            if (string.IsNullOrEmpty(filterPredicate) == false)
-            {
-                predicate = filterPredicate;
-            }
-            if (string.IsNullOrEmpty(searchInterfacePredicate) == false)
-            {
-                if (string.IsNullOrEmpty(predicate) == false)
-                {
-                    predicate = $"({predicate}) && ({searchInterfacePredicate})";
-                }
-                else
-                {
-                    predicate = searchInterfacePredicate;
-                }
-            }
 
             if (predicate.HasContent() && orderBy.HasContent())
             {
