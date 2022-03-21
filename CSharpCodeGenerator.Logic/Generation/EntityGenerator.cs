@@ -100,7 +100,6 @@ namespace CSharpCodeGenerator.Logic.Generation
             result.FormatCSharpCode();
             return result;
         }
-
         public IEnumerable<Contracts.IGeneratedItem> CreateModulesEntities()
         {
             var result = new List<Contracts.IGeneratedItem>();
@@ -133,7 +132,6 @@ namespace CSharpCodeGenerator.Logic.Generation
             result.FormatCSharpCode();
             return result;
         }
-
         public IEnumerable<Contracts.IGeneratedItem> CreatePersistenceEntities()
         {
             var result = new List<Contracts.IGeneratedItem>();
@@ -168,6 +166,39 @@ namespace CSharpCodeGenerator.Logic.Generation
             result.FormatCSharpCode();
             return result;
         }
+        public IEnumerable<Contracts.IGeneratedItem> CreateShadowEntities()
+        {
+            var result = new List<Contracts.IGeneratedItem>();
+            var contractsProject = ContractsProject.Create(SolutionProperties);
+
+            foreach (var type in contractsProject.ShadowTypes)
+            {
+                if (CanCreateEntity(type))
+                {
+                    result.Add(CreateEntityFromContract(type, Common.ItemType.ShadowEntity));
+                    result.Add(CreateShadowEntity(type));
+                }
+            }
+            return result;
+        }
+        private Contracts.IGeneratedItem CreateShadowEntity(Type type)
+        {
+            type.CheckArgument(nameof(type));
+
+            var result = new Models.GeneratedItem(Common.UnitType.Logic, Common.ItemType.ShadowEntity)
+            {
+                FullName = CreateEntityFullNameFromInterface(type),
+                FileExtension = StaticLiterals.CSharpFileExtension,
+                SubFilePath = CreateSubFilePathFromInterface(type, "Entities", "Inheritance", StaticLiterals.CSharpFileExtension),
+            };
+            result.Source.Add($"partial class {CreateEntityNameFromInterface(type)} : {GetBaseClassByContract(type)}");
+            result.Source.Add("{");
+            result.Source.Add("}");
+            result.EnvelopeWithANamespace(CreateNameSpace(type));
+            result.FormatCSharpCode();
+            return result;
+        }
+
         /// <summary>
         /// Diese Methode erstellt den Programmcode der Beziehungen zwischen den Entitaeten aus den Schnittstellen-Typen.
         /// </summary>
@@ -265,40 +296,6 @@ namespace CSharpCodeGenerator.Logic.Generation
             result.FormatCSharpCode();
             return result;
         }
-
-        public IEnumerable<Contracts.IGeneratedItem> CreateShadowEntities()
-        {
-            var result = new List<Contracts.IGeneratedItem>();
-            var contractsProject = ContractsProject.Create(SolutionProperties);
-
-            foreach (var type in contractsProject.ShadowTypes)
-            {
-                if (CanCreateEntity(type))
-                {
-                    result.Add(CreateEntityFromContract(type, Common.ItemType.ShadowEntity));
-                    result.Add(CreateShadowEntity(type));
-                }
-            }
-            return result;
-        }
-        private Contracts.IGeneratedItem CreateShadowEntity(Type type)
-        {
-            type.CheckArgument(nameof(type));
-
-            var result = new Models.GeneratedItem(Common.UnitType.Logic, Common.ItemType.ShadowEntity)
-            {
-                FullName = CreateEntityFullNameFromInterface(type),
-                FileExtension = StaticLiterals.CSharpFileExtension,
-                SubFilePath = CreateSubFilePathFromInterface(type, "Entities", "Inheritance", StaticLiterals.CSharpFileExtension),
-            };
-            result.Source.Add($"partial class {CreateEntityNameFromInterface(type)} : {GetBaseClassByContract(type)}");
-            result.Source.Add("{");
-            result.Source.Add("}");
-            result.EnvelopeWithANamespace(CreateNameSpace(type));
-            result.FormatCSharpCode();
-            return result;
-        }
-
         private Contracts.IGeneratedItem CreateEntityFromContract(Type type, Common.ItemType itemType)
         {
             type.CheckArgument(nameof(type));
@@ -306,6 +303,10 @@ namespace CSharpCodeGenerator.Logic.Generation
             var contractHelper = new ContractHelper(type);
             var baseInterfaces = GetPersistenceBaseContract(type);
             var typeProperties = ContractHelper.GetAllProperties(type);
+            var delegateType = default(Type);
+            var delegateEntityType = default(string);
+            var delegateSourceName = "Source";
+            var delegateProperties = default(IEnumerable<PropertyInfo>);
             var generateProperties = default(IEnumerable<PropertyInfo>);
             var result = new Models.GeneratedItem(Common.UnitType.Logic, itemType)
             {
@@ -319,19 +320,62 @@ namespace CSharpCodeGenerator.Logic.Generation
             result.AddRange(CreatePartialStaticConstrutor(contractHelper.EntityName));
             result.AddRange(CreatePartialConstrutor("public", contractHelper.EntityName));
 
-            if (itemType == Common.ItemType.ShadowEntity)
+            if (itemType == Common.ItemType.BusinessEntity && contractHelper.DelegateType != null)
             {
+                delegateType = contractHelper.DelegateType;
+                delegateEntityType = $"{CreateEntityFullNameFromInterface(delegateType)}";
+
+                result.Add($"public {delegateEntityType} {delegateSourceName}" + " { get; set; }" + $" = new {delegateEntityType}();");
+                result.Add($"public virtual void SetSource({delegateEntityType} source) => {delegateSourceName} = source;");
+
+                delegateProperties = ContractHelper.GetAllProperties(delegateType)
+                                                   .Where(p => CanCreateProperty(delegateType, p.Name));
+                generateProperties = ContractHelper.GetAllProperties(type)
+                                                   .Where(p => CanCreateProperty(type, p.Name));
+            }
+            else if (itemType == Common.ItemType.ShadowEntity)
+            {
+                var interfaceTypes = type.GetInterfaces();
+
+                delegateType = interfaceTypes.Single(e => e.IsGenericType && e.Name.Equals(StaticLiterals.IShadowName)).GetGenericArguments()[0];
+                delegateEntityType = $"{CreateEntityFullNameFromInterface(delegateType)}";
+
+                result.Add($"public {delegateEntityType} {delegateSourceName}" + " { get; set; }");
+                result.Add($"public override void SetSource(object source) => {delegateSourceName} = source as {delegateEntityType};");
+
+                result.Add($"public override int Id ");
+                result.Add("{");
+                result.Add($"get => {delegateSourceName}.Id;");
+                result.Add($"set => {delegateSourceName}.Id = value;");
+                result.Add("}");
+
+                delegateProperties = ContractHelper.GetEntityProperties(delegateType)
+                                                   .Where(p => CanCreateProperty(delegateType, p.Name));
                 generateProperties = ContractHelper.FilterShadowPropertiesForGeneration(type, typeProperties);
             }
             else
             {
-                generateProperties = ContractHelper.GetEntityProperties(type).Where(p => CanCreateProperty(type, p.Name));
+                delegateProperties = Array.Empty<PropertyInfo>();
+                generateProperties = ContractHelper.GetEntityProperties(type)
+                                                   .Where(p => CanCreateProperty(type, p.Name));
             }
 
-            foreach (var item in generateProperties)
+            foreach (var generateItem in generateProperties)
             {
-                var propertyHelper = new ContractPropertyHelper(type, item);
-                var codeLines = new List<string>(CreateProperty(propertyHelper));
+                var propertyHelper = new ContractPropertyHelper(type, generateItem);
+                var delegateItem = delegateProperties.FirstOrDefault(p => p.Name.Equals(generateItem.Name) && p.PropertyType.Equals(generateItem.PropertyType));
+                var codeLines = new List<string>();
+
+                if (delegateItem != null)
+                {
+                    var delegateHelper = new ContractPropertyHelper(delegateType, delegateItem);
+
+                    codeLines.AddRange(CreateDelegateProperty(propertyHelper, delegateSourceName, delegateHelper));
+                }
+                else
+                {
+                    codeLines.AddRange(CreateProperty(propertyHelper));
+                }
 
                 AfterCreateProperty(propertyHelper, codeLines);
                 result.AddRange(codeLines);
@@ -394,6 +438,21 @@ namespace CSharpCodeGenerator.Logic.Generation
                         var secondEntity = $"{CreateEntityFullNameFromInterface(genericArgs[1])}";
 
                         result = $"{OneToManyEntity}<{genericArgs[0].FullName}, {firstEntity}, {genericArgs[1].FullName}, {secondEntity}>";
+                    }
+                }
+                else
+                {
+                    if (typeHelper.IsVersionable)
+                    {
+                        result = VersionEntity;
+                    }
+                    else if (typeHelper.IsIdentifiable)
+                    {
+                        result = IdentityEntity;
+                    }
+                    else
+                    {
+                        result = EntityObject;
                     }
                 }
             }

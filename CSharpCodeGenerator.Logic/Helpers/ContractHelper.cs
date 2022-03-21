@@ -16,14 +16,13 @@ namespace CSharpCodeGenerator.Logic.Helpers
         public static string PersistenceLabel => "Persistence";
         public static string ShadowLabel => "Shadow";
 
-        private Type Type { get; }
+        public Type Type { get; }
         private ContractInfoAttribute Info { get; }
 
         public bool IsVersionable { get; }
         public bool IsIdentifiable { get; }
         public bool IsCopyable { get; }
         public bool IsOneToMany { get; }
-        public bool IsPersistenType { get; }
         public string EntityType { get; }
         public string EntityName { get; }
         public string EntityFieldName => $"{char.ToLower(EntityName[0])}{EntityName[1..]}";
@@ -67,6 +66,9 @@ namespace CSharpCodeGenerator.Logic.Helpers
                 return result.GetValue("Id");
             }
         }
+        public Type DelegateType => Info?.DelegateType;
+        public bool HasLogicAccess => Info == null || Info.HasLogicAccess;
+        public bool HasWebApiAccess => Info == null || Info.HasWebApiAccess;
 
         public ContractHelper(Type type)
         {
@@ -86,15 +88,61 @@ namespace CSharpCodeGenerator.Logic.Helpers
                                                          && e.GetGenericArguments()[0].Name.Equals(type.Name)) != null;
             IsOneToMany = HasOneToMany(type);
 
-            IsPersistenType = type.FullName.Contains(StaticLiterals.PersistenceSubName);
-
             EntityName = GeneratorObject.CreateEntityNameFromInterface(Type);
             EntityType = $"{entityNameSpace}.{EntityName}";
         }
         public IEnumerable<PropertyInfo> GetAllProperties() => GetAllProperties(Type);
 
-        #region Helpers
         #region Interface/Contract Helpers
+        public static bool IsBusinessType(Type type)
+        {
+            type.CheckArgument(nameof(type));
+
+            return type.IsInterface && type.FullName.Contains(StaticLiterals.BusinessSubName);
+        }
+        public static bool IsOneToManyType(Type type)
+        {
+            type.CheckArgument(nameof(type));
+
+            return type.IsInterface && type.GetInterfaces().Any(i => i.FullName.Contains(StaticLiterals.IOneToManyName));
+        }
+        public static bool IsOneToAnotherType(Type type)
+        {
+            type.CheckArgument(nameof(type));
+
+            return type.IsInterface && type.GetInterfaces().Any(i => i.FullName.Contains(StaticLiterals.IOneToAnotherName));
+        }
+        public static bool IsCompositeType(Type type)
+        {
+            type.CheckArgument(nameof(type));
+
+            return type.IsInterface && type.GetInterfaces().Any(i => i.FullName.Contains(StaticLiterals.ICompositeName));
+        }
+        public static bool IsModulesType(Type type)
+        {
+            type.CheckArgument(nameof(type));
+
+            return type.IsInterface && type.FullName.Contains(StaticLiterals.ModulesSubName);
+        }
+        public static bool IsPersistenceType(Type type)
+        {
+            type.CheckArgument(nameof(type));
+
+            return type.IsInterface && type.FullName.Contains(StaticLiterals.PersistenceSubName);
+        }
+        public static bool IsShadowType(Type type)
+        {
+            type.CheckArgument(nameof(type));
+
+            return type.IsInterface && type.FullName.Contains(StaticLiterals.ShadowSubName);
+        }
+        public static bool IsThirdPartyType(Type type)
+        {
+            type.CheckArgument(nameof(type));
+
+            return type.IsInterface && type.FullName.Contains(StaticLiterals.ThirdPartySubName);
+        }
+
         public static IEnumerable<Type> GetBaseInterfaces(Type type)
         {
             type.CheckArgument(nameof(type));
@@ -245,6 +293,7 @@ namespace CSharpCodeGenerator.Logic.Helpers
 
             return FilterPropertiesForGeneration(type, typeProperties.Except(baseProperties));
         }
+        public static IEnumerable<string> VersionProperties => new[] { "Id", "RowVersion" };
         public static IEnumerable<PropertyInfo> FilterPropertiesForGeneration(Type type, IEnumerable<PropertyInfo> properties)
         {
             type.CheckArgument(nameof(type));
@@ -398,6 +447,15 @@ namespace CSharpCodeGenerator.Logic.Helpers
                                                   && e.Name.Equals(StaticLiterals.IOneToAnotherName));
             return (oneToAnother?.GetGenericArguments()[0], oneToAnother?.GetGenericArguments()[1]);
         }
+        public static Type GetShadowtype(Type type)
+        {
+            type.CheckArgument(nameof(type));
+
+            var shadowType = type.GetInterfaces()
+                                 .FirstOrDefault(e => e.IsGenericType
+                                                   && e.Name.Equals(StaticLiterals.IShadowName));
+            return shadowType?.GetGenericArguments()[0];
+        }
         public static bool HasPersistenceBaseInterface(Type type)
         {
             return GetPersistenceBaseInterface(type) != null;
@@ -460,7 +518,6 @@ namespace CSharpCodeGenerator.Logic.Helpers
             }
             return result;
         }
-        #endregion Helpers
     }
 }
 //MdEnd
